@@ -1,0 +1,1040 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HDFS Commands · Reference Guide</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background: #f1f5f9;
+        font-family: "Inter", sans-serif;
+        line-height: 1.55;
+        color: #0f172a;
+        padding: 2rem 1.5rem 5rem; /* مساحة إضافية عشان التوقيع الثابت */
+      }
+
+      .guide-container {
+        max-width: 1100px;
+        margin: 0 auto;
+        background: #ffffff;
+        border-radius: 28px;
+        box-shadow:
+          0 20px 35px -8px rgba(0, 0, 0, 0.1),
+          0 8px 20px -6px rgba(0, 0, 0, 0.05);
+        padding: 2.5rem 2rem;
+      }
+
+      /* ===== Digital Signature ===== */
+      .digital-signature {
+        position: fixed;
+        bottom: 18px;
+        right: 25px;
+        color: #1e3a8a;
+        font-size: 1rem;
+        font-weight: 600;
+        letter-spacing: 1px;
+        z-index: 999;
+        font-family: "Inter", sans-serif;
+      }
+      /* header */
+      .header {
+        margin-bottom: 2rem;
+        border-bottom: 3px solid #e2e8f0;
+        padding-bottom: 1.5rem;
+      }
+
+      h1 {
+        font-size: 2.2rem;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: #0b1e33;
+      }
+
+      h1 i {
+        color: #2563eb;
+        font-size: 2rem;
+      }
+
+      .subhead {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 0.75rem;
+        color: #334155;
+        font-size: 1rem;
+        background: #f8fafc;
+        padding: 0.9rem 1.2rem;
+        border-radius: 16px;
+        border-left: 5px solid #3b82f6;
+        font-weight: 400;
+      }
+
+      .subhead i {
+        color: #2563eb;
+        font-size: 1.1rem;
+        width: 1.5rem;
+        text-align: center;
+      }
+
+      .note-prefix {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin: 1.5rem 0 0.5rem;
+      }
+
+      .prefix-card {
+        background: #f8fafc;
+        border-radius: 14px;
+        padding: 1.2rem 1.4rem;
+        border: 1px solid #e2e8f0;
+        transition: box-shadow 0.15s ease;
+      }
+
+      .prefix-card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+      }
+
+      .prefix-card strong {
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: #0f172a;
+        margin-bottom: 6px;
+        background: #eef2f6;
+        padding: 0.2rem 0.6rem;
+        border-radius: 8px;
+        display: inline-block;
+      }
+
+      .prefix-card p {
+        color: #1e293b;
+        font-size: 0.95rem;
+        margin-top: 8px;
+      }
+
+      .badge {
+        display: inline-block;
+        background: #dbeafe;
+        color: #1e40af;
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 0.2rem 0.6rem;
+        border-radius: 20px;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+        margin-left: 8px;
+      }
+
+      .section {
+        margin: 2.5rem 0 1.8rem;
+      }
+
+      .section-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #0f172a;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 1.4rem;
+        letter-spacing: -0.01em;
+        border-left: 6px solid #2563eb;
+        padding-left: 1rem;
+      }
+
+      .section-title i {
+        color: #2563eb;
+        font-size: 1.3rem;
+        width: 1.8rem;
+      }
+
+      .cmd-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 1.2rem;
+      }
+
+      .cmd-item {
+        background: #ffffff;
+        border: 1px solid #e9eef3;
+        border-radius: 20px;
+        padding: 1.25rem 1.6rem 1.3rem;
+        transition:
+          border-color 0.15s,
+          box-shadow 0.15s;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+      }
+
+      .cmd-item:hover {
+        border-color: #b9d0f0;
+        box-shadow: 0 10px 20px -8px rgba(37, 99, 235, 0.12);
+      }
+
+      .cmd-header {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px 16px;
+        margin-bottom: 1rem;
+      }
+
+      .cmd-number {
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: #ffffff;
+        background: #1e293b;
+        padding: 0.2rem 0.8rem;
+        border-radius: 30px;
+        letter-spacing: 0.02em;
+      }
+
+      .cmd-name {
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 600;
+        font-size: 1.1rem;
+        background: #f1f5f9;
+        padding: 0.3rem 1rem;
+        border-radius: 12px;
+        color: #0b1e33;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .cmd-name i {
+        color: #3b82f6;
+        font-size: 0.95rem;
+      }
+
+      .syntax-block {
+        background: #0b1e33;
+        padding: 0.9rem 1.2rem;
+        border-radius: 12px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.92rem;
+        color: #e2e8f0;
+        overflow-x: auto;
+        white-space: nowrap;
+        margin: 0.8rem 0 1rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border-left: 5px solid #3b82f6;
+      }
+
+      .syntax-block i {
+        color: #94a3b8;
+        font-size: 0.9rem;
+      }
+
+      .syntax-block .prompt {
+        color: #86efac;
+        font-weight: 500;
+      }
+
+      .example {
+        background: #f8fafc;
+        border-radius: 14px;
+        padding: 0.7rem 1.2rem;
+        margin: 0.7rem 0 0.8rem;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.9rem;
+        border: 1px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .example i {
+        color: #3b82f6;
+        font-size: 0.9rem;
+        width: 1.5rem;
+      }
+
+      .example span {
+        color: #0f172a;
+        font-weight: 500;
+      }
+
+      .description {
+        color: #1e293b;
+        font-size: 0.96rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        margin-top: 0.6rem;
+      }
+
+      .description i {
+        color: #3b82f6;
+        font-size: 1rem;
+        margin-top: 0.2rem;
+        width: 1.5rem;
+      }
+
+      .flag-note {
+        background: #fef9e7;
+        border-radius: 10px;
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+        margin-top: 0.8rem;
+        border-left: 4px solid #f59e0b;
+        color: #78350f;
+      }
+
+      .flag-note i {
+        color: #f59e0b;
+        margin-right: 6px;
+      }
+
+      .table-wrapper {
+        margin: 2.5rem 0 1rem;
+        border-radius: 20px;
+        border: 1px solid #e9eef3;
+        overflow: hidden;
+        background: #ffffff;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+      }
+
+      .table-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: #f1f5f9;
+        padding: 1.2rem 1.5rem;
+        border-bottom: 1px solid #e2e8f0;
+      }
+
+      .table-header i {
+        color: #2563eb;
+        font-size: 1.3rem;
+      }
+
+      .table-header h2 {
+        font-size: 1.3rem;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        color: #0f172a;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.95rem;
+      }
+
+      th {
+        text-align: left;
+        padding: 1rem 1.5rem;
+        background: #f8fafc;
+        font-weight: 600;
+        color: #0f172a;
+        border-bottom: 1px solid #e2e8f0;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+      }
+
+      td {
+        padding: 0.9rem 1.5rem;
+        border-bottom: 1px solid #f1f5f9;
+        color: #1e293b;
+      }
+
+      tr:last-child td {
+        border-bottom: none;
+      }
+
+      td:first-child {
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 500;
+        color: #1e40af;
+        white-space: nowrap;
+      }
+
+      td code {
+        background: #f1f5f9;
+        padding: 0.2rem 0.6rem;
+        border-radius: 8px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.85rem;
+        color: #0b1e33;
+      }
+
+      .footnote {
+        margin-top: 2rem;
+        font-size: 0.85rem;
+        color: #64748b;
+        text-align: center;
+        border-top: 1px solid #e2e8f0;
+        padding-top: 1.8rem;
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .footnote i {
+        color: #2563eb;
+      }
+
+      @media (max-width: 700px) {
+        .guide-container {
+          padding: 1.5rem 1rem;
+        }
+        .note-prefix {
+          grid-template-columns: 1fr;
+        }
+        .cmd-item {
+          padding: 1rem;
+        }
+        .syntax-block {
+          white-space: normal;
+          word-break: break-word;
+        }
+        th,
+        td {
+          padding: 0.8rem 1rem;
+        }
+        .table-header {
+          padding: 1rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="guide-container">
+      <!-- Header -->
+      <div class="header">
+        <h1>
+          <i class="fas fa-folder-tree"></i>
+          HDFS Commands Reference Guide
+        </h1>
+        <div class="subhead">
+          <i class="fas fa-terminal"></i>
+          <span
+            ><strong>Note on command prefixes:</strong>
+            <code>hadoop fs</code> works with any Hadoop-compatible file system,
+            while <code>hdfs dfs</code> is specific to HDFS. This guide uses
+            <code>hdfs dfs</code> throughout.</span
+          >
+        </div>
+      </div>
+
+      <!-- Prefix cards -->
+      <div class="note-prefix">
+        <div class="prefix-card">
+          <strong>hadoop fs</strong> <span class="badge">generic</span>
+          <p>
+            Interacts with ANY Hadoop-compatible file system (local, HDFS, S3,
+            etc.).
+          </p>
+        </div>
+        <div class="prefix-card">
+          <strong>hdfs dfs</strong> <span class="badge">HDFS only</span>
+          <p>
+            Interacts <em>only</em> with the Hadoop Distributed File System.
+          </p>
+        </div>
+      </div>
+
+      <!-- 1 -->
+      <div class="section">
+        <div class="section-title">
+          <i class="fas fa-microchip"></i>
+          <span>1 · Check Running Daemons & Local FS</span>
+        </div>
+        <div class="cmd-grid">
+          <div class="cmd-item">
+            <div class="cmd-header">
+              <span class="cmd-number">1</span>
+              <span class="cmd-name"><i class="fas fa-eye"></i> jps</span>
+            </div>
+            <div class="syntax-block">
+              <i class="fas fa-angle-right"></i>
+              <span><span class="prompt">$</span> jps</span>
+            </div>
+            <div class="description">
+              <i class="fas fa-info-circle"></i>
+              <span
+                >Lists all running Java processes (Hadoop daemons) on the
+                current machine.</span
+              >
+            </div>
+          </div>
+          <div class="cmd-item">
+            <div class="cmd-header">
+              <span class="cmd-number">2</span>
+              <span class="cmd-name"><i class="fas fa-list"></i> ls</span>
+            </div>
+            <div class="syntax-block">
+              <i class="fas fa-angle-right"></i>
+              <span
+                ><span class="prompt">$</span> ls /home/cloudera/Desktop</span
+              >
+            </div>
+            <div class="description">
+              <i class="fas fa-info-circle"></i>
+              <span>Lists contents of a local file system directory.</span>
+            </div>
+          </div>
+          <div class="cmd-item">
+            <div class="cmd-header">
+              <span class="cmd-number">3</span>
+              <span class="cmd-name"
+                ><i class="fas fa-cloud"></i> hadoop fs</span
+              >
+            </div>
+            <div class="syntax-block">
+              <i class="fas fa-angle-right"></i>
+              <span
+                ><span class="prompt">$</span> hadoop fs -&lt;command&gt;</span
+              >
+            </div>
+            <div class="description">
+              <i class="fas fa-info-circle"></i>
+              <span
+                >Interacts with ANY Hadoop-compatible file system (distributed,
+                local, cloud).</span
+              >
+            </div>
+          </div>
+          <div class="cmd-item">
+            <div class="cmd-header">
+              <span class="cmd-number">4</span>
+              <span class="cmd-name"><i class="fas fa-hdd"></i> hdfs dfs</span>
+            </div>
+            <div class="syntax-block">
+              <i class="fas fa-angle-right"></i>
+              <span
+                ><span class="prompt">$</span> hdfs dfs -&lt;command&gt;</span
+              >
+            </div>
+            <div class="description">
+              <i class="fas fa-info-circle"></i>
+              <span
+                >Interacts <strong>ONLY</strong> with HDFS. (Used in all
+                commands below).</span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2 -->
+      <div class="section">
+        <div class="section-title">
+          <i class="fas fa-folder-open"></i>
+          <span>2 · Dealing with Directories</span>
+        </div>
+        <div class="cmd-grid">
+          <div class="cmd-item">
+            <div class="cmd-header">
+              <span class="cmd-number">5</span>
+              <span class="cmd-name"
+                ><i class="fas fa-folder-plus"></i> mkdir</span
+              >
+            </div>
+            <div class="syntax-block">
+              <i class="fas fa-angle-right"></i>
+              <span
+                ><span class="prompt">$</span> hdfs dfs -mkdir
+                &lt;directory_name&gt;</span
+              >
+            </div>
+            <div class="example">
+              <i class="fas fa-lightbulb"></i>
+              <span>hdfs dfs -mkdir student_data</span>
+            </div>
+            <div class="description">
+              <i class="fas fa-info-circle"></i>
+              <span>Creates a directory in HDFS.</span>
+            </div>
+          </div>
+          <div class="cmd-item">
+            <div class="cmd-header">
+              <span class="cmd-number">5.1</span>
+              <span class="cmd-name"
+                ><i class="fas fa-sitemap"></i> mkdir -p</span
+              >
+            </div>
+            <div class="syntax-block">
+              <i class="fas fa-angle-right"></i>
+              <span
+                ><span class="prompt">$</span> hdfs dfs -mkdir -p
+                &lt;parent&gt;/&lt;child&gt;</span
+              >
+            </div>
+            <div class="example">
+              <i class="fas fa-lightbulb"></i>
+              <span>hdfs dfs -mkdir -p /user/cloudera/student_data/ahmed</span>
+            </div>
+            <div class="description">
+              <i class="fas fa-info-circle"></i>
+              <span
+                >Creates nested directories (parents created if needed).</span
+              >
+            </div>
+            <div class="flag-note">
+              <i class="fas fa-flag"></i> Use <code>-p</code> to create parent
+              directories automatically.
+            </div>
+          </div>
+          <div class="cmd-item">
+            <div class="cmd-header">
+              <span class="cmd-number">5.2</span>
+              <span class="cmd-name"
+                ><i class="fas fa-folder"></i> subdirectory</span
+              >
+            </div>
+            <div class="syntax-block">
+              <i class="fas fa-angle-right"></i>
+              <span
+                ><span class="prompt">$</span> hdfs dfs -mkdir
+                &lt;existing&gt;/&lt;new_sub&gt;</span
+              >
+            </div>
+            <div class="example">
+              <i class="fas fa-lightbulb"></i>
+              <span>hdfs dfs -mkdir student_data/mohamed</span>
+            </div>
+            <div class="description">
+              <i class="fas fa-info-circle"></i>
+              <span>Creates a subdirectory inside an existing folder.</span>
+            </div>
+          </div>
+          <div class="cmd-item">
+            <div class="cmd-header">
+              <span class="cmd-number">6</span>
+              <span class="cmd-name"
+                ><i class="fas fa-folder-minus"></i> rmdir</span
+              >
+            </div>
+            <div class="syntax-block">
+              <i class="fas fa-angle-right"></i>
+              <span
+                ><span class="prompt">$</span> hdfs dfs -rmdir
+                &lt;directory_name&gt;</span
+              >
+            </div>
+            <div class="example">
+              <i class="fas fa-lightbulb"></i>
+              <span>hdfs dfs -rmdir student_data</span>
+            </div>
+            <div class="description">
+              <i class="fas fa-info-circle"></i>
+              <span
+                >Removes an <strong>empty</strong> directory. For non‑empty
+                directories, use <code>hdfs dfs -rm -r</code>.</span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3 -->
+      <div class="section">
+        <div class="section-title">
+          <i class="fas fa-file-alt"></i>
+          <span>3 · Dealing with Files</span>
+        </div>
+        <div class="cmd-grid">
+          <div class="cmd-item">
+            <div class="cmd-header">
+              <span class="cmd-number">7</span>
+              <span class="cmd-name"><i class="fas fa-file"></i> touchz</span>
+            </div>
+            <div class="syntax-block">
+              <i class="fas fa-angle-right"></i>
+              <span
+                ><span class="prompt">$</span> hdfs dfs -touchz
+                &lt;file_name.extension&gt;</span
+              >
+            </div>
+            <div class="example">
+              <i class="fas fa-lightbulb"></i>
+              <span>hdfs dfs -touchz report.txt</span>
+            </div>
+            <div class="description">
+              <i class="fas fa-info-circle"></i>
+              <span>Creates an empty file in HDFS.</span>
+            </div>
+          </div>
+          <div class="cmd-item">
+            <div class="cmd-header">
+              <span class="cmd-number">8</span>
+              <span class="cmd-name"><i class="fas fa-trash-alt"></i> rm</span>
+            </div>
+            <div class="syntax-block">
+              <i class="fas fa-angle-right"></i>
+              <span
+                ><span class="prompt">$</span> hdfs dfs -rm
+                &lt;file_name.extension&gt;</span
+              >
+            </div>
+            <div class="example">
+              <i class="fas fa-lightbulb"></i>
+              <span>hdfs dfs -rm report.txt</span>
+            </div>
+            <div class="description">
+              <i class="fas fa-info-circle"></i>
+              <span
+                >Removes files only (use <code>-r</code> for recursive removal
+                of folders).</span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4 -->
+      <div class="section">
+        <div class="section-title">
+          <i class="fas fa-copy"></i>
+          <span>4 · Copy / Move (Local ↔ HDFS)</span>
+        </div>
+        <div class="cmd-grid">
+          <div class="cmd-item">
+            <div class="cmd-header">
+              <span class="cmd-number">9</span>
+              <span class="cmd-name"
+                ><i class="fas fa-upload"></i> copyFromLocal</span
+              >
+            </div>
+            <div class="syntax-block">
+              <i class="fas fa-angle-right"></i>
+              <span
+                ><span class="prompt">$</span> hdfs dfs -copyFromLocal
+                &lt;local&gt; &lt;hdfs_dest&gt;</span
+              >
+            </div>
+            <div class="example">
+              <i class="fas fa-lightbulb"></i>
+              <span>hdfs dfs -copyFromLocal local_report.txt /user/data/</span>
+            </div>
+            <div class="description">
+              <i class="fas fa-info-circle"></i>
+              <span>Copies a file from local file system to HDFS.</span>
+            </div>
+          </div>
+          <div class="cmd-item">
+            <div class="cmd-header">
+              <span class="cmd-number">10</span>
+              <span class="cmd-name"
+                ><i class="fas fa-cloud-upload-alt"></i> put</span
+              >
+            </div>
+            <div class="syntax-block">
+              <i class="fas fa-angle-right"></i>
+              <span
+                ><span class="prompt">$</span> hdfs dfs -put &lt;local&gt;
+                &lt;hdfs_dest&gt;</span
+              >
+            </div>
+            <div class="example">
+              <i class="fas fa-lightbulb"></i>
+              <span>hdfs dfs -put local_report.txt student_data</span>
+            </div>
+            <div class="description">
+              <i class="fas fa-info-circle"></i>
+              <span
+                >Uploads a local file into HDFS (similar to
+                copyFromLocal).</span
+              >
+            </div>
+          </div>
+          <div class="cmd-item">
+            <div class="cmd-header">
+              <span class="cmd-number">12</span>
+              <span class="cmd-name"
+                ><i class="fas fa-download"></i> copyToLocal</span
+              >
+            </div>
+            <div class="syntax-block">
+              <i class="fas fa-angle-right"></i>
+              <span
+                ><span class="prompt">$</span> hdfs dfs -copyToLocal
+                &lt;hdfs&gt; &lt;local_dest&gt;</span
+              >
+            </div>
+            <div class="example">
+              <i class="fas fa-lightbulb"></i>
+              <span>hdfs dfs -copyToLocal report.txt ~/Desktop/</span>
+            </div>
+            <div class="description">
+              <i class="fas fa-info-circle"></i>
+              <span
+                >Copies a file from HDFS back to the local file system.</span
+              >
+            </div>
+          </div>
+          <div class="cmd-item">
+            <div class="cmd-header">
+              <span class="cmd-number">13</span>
+              <span class="cmd-name"><i class="fas fa-copy"></i> cp</span>
+            </div>
+            <div class="syntax-block">
+              <i class="fas fa-angle-right"></i>
+              <span
+                ><span class="prompt">$</span> hdfs dfs -cp &lt;source_hdfs&gt;
+                &lt;dest_hdfs&gt;</span
+              >
+            </div>
+            <div class="example">
+              <i class="fas fa-lightbulb"></i>
+              <span
+                >hdfs dfs -cp student_data/report.txt student_data/ahmed/</span
+              >
+            </div>
+            <div class="description">
+              <i class="fas fa-info-circle"></i>
+              <span>Copies a file within HDFS.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5 -->
+      <div class="section">
+        <div class="section-title">
+          <i class="fas fa-scroll"></i>
+          <span>5 · View, Move & Advanced Operations</span>
+        </div>
+        <div class="cmd-grid">
+          <div class="cmd-item">
+            <div class="cmd-header">
+              <span class="cmd-number">14</span>
+              <span class="cmd-name"><i class="fas fa-file-code"></i> cat</span>
+            </div>
+            <div class="syntax-block">
+              <i class="fas fa-angle-right"></i>
+              <span
+                ><span class="prompt">$</span> hdfs dfs -cat
+                &lt;file_name.extension&gt;</span
+              >
+            </div>
+            <div class="example">
+              <i class="fas fa-lightbulb"></i>
+              <span>hdfs dfs -cat report.txt</span>
+            </div>
+            <div class="description">
+              <i class="fas fa-info-circle"></i>
+              <span
+                >Displays file content on terminal. Also verifies if a file
+                exists in HDFS.</span
+              >
+            </div>
+          </div>
+          <div class="cmd-item">
+            <div class="cmd-header">
+              <span class="cmd-number">15</span>
+              <span class="cmd-name"><i class="fas fa-arrows-alt"></i> mv</span>
+            </div>
+            <div class="syntax-block">
+              <i class="fas fa-angle-right"></i>
+              <span
+                ><span class="prompt">$</span> hdfs dfs -mv &lt;source&gt;
+                &lt;dest&gt;</span
+              >
+            </div>
+            <div class="example">
+              <i class="fas fa-lightbulb"></i>
+              <span
+                >hdfs dfs -mv student_data/report.txt student_data/ahmed/</span
+              >
+            </div>
+            <div class="description">
+              <i class="fas fa-info-circle"></i>
+              <span>Moves (cuts) a file within HDFS.</span>
+            </div>
+          </div>
+          <div class="cmd-item">
+            <div class="cmd-header">
+              <span class="cmd-number">16</span>
+              <span class="cmd-name"
+                ><i class="fas fa-clone"></i> setrep -w</span
+              >
+            </div>
+            <div class="syntax-block">
+              <i class="fas fa-angle-right"></i>
+              <span
+                ><span class="prompt">$</span> hdfs dfs -setrep -w
+                &lt;number&gt; &lt;file_path&gt;</span
+              >
+            </div>
+            <div class="example">
+              <i class="fas fa-lightbulb"></i>
+              <span>hdfs dfs -setrep -w 3 /user/data/report.txt</span>
+            </div>
+            <div class="description">
+              <i class="fas fa-info-circle"></i>
+              <span
+                >Changes replication factor. The <code>-w</code> flag waits for
+                replication to complete.</span
+              >
+            </div>
+          </div>
+          <div class="cmd-item">
+            <div class="cmd-header">
+              <span class="cmd-number">17</span>
+              <span class="cmd-name"
+                ><i class="fas fa-plus-circle"></i> appendToFile</span
+              >
+            </div>
+            <div class="syntax-block">
+              <i class="fas fa-angle-right"></i>
+              <span
+                ><span class="prompt">$</span> hdfs dfs -appendToFile
+                &lt;local_src&gt; &lt;hdfs_dest&gt;</span
+              >
+            </div>
+            <div class="example">
+              <i class="fas fa-lightbulb"></i>
+              <span
+                >hdfs dfs -appendToFile new_logs.txt
+                /user/logs/master_log.txt</span
+              >
+            </div>
+            <div class="description">
+              <i class="fas fa-info-circle"></i>
+              <span
+                >Appends contents of local file(s) to an existing HDFS
+                file.</span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="table-wrapper">
+        <div class="table-header">
+          <i class="fas fa-table"></i>
+          <h2>Quick Reference Table</h2>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Command</th>
+              <th>Purpose</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td>jps</td>
+              <td>Check running Hadoop daemons</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>ls</td>
+              <td>List local file system contents</td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td>hadoop fs -&lt;cmd&gt;</td>
+              <td>Interact with any Hadoop file system</td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td>hdfs dfs -&lt;cmd&gt;</td>
+              <td>Interact only with HDFS</td>
+            </tr>
+            <tr>
+              <td>5</td>
+              <td>hdfs dfs -mkdir</td>
+              <td>Create directory</td>
+            </tr>
+            <tr>
+              <td>6</td>
+              <td>hdfs dfs -rmdir</td>
+              <td>Remove empty directory</td>
+            </tr>
+            <tr>
+              <td>7</td>
+              <td>hdfs dfs -touchz</td>
+              <td>Create empty file</td>
+            </tr>
+            <tr>
+              <td>8</td>
+              <td>hdfs dfs -rm</td>
+              <td>Remove files only</td>
+            </tr>
+            <tr>
+              <td>9</td>
+              <td>hdfs dfs -copyFromLocal</td>
+              <td>Copy local → HDFS</td>
+            </tr>
+            <tr>
+              <td>10</td>
+              <td>hdfs dfs -put</td>
+              <td>Upload local file to HDFS</td>
+            </tr>
+            <tr>
+              <td>12</td>
+              <td>hdfs dfs -copyToLocal</td>
+              <td>Copy HDFS → local</td>
+            </tr>
+            <tr>
+              <td>13</td>
+              <td>hdfs dfs -cp</td>
+              <td>Copy within HDFS</td>
+            </tr>
+            <tr>
+              <td>14</td>
+              <td>hdfs dfs -cat</td>
+              <td>Display file content</td>
+            </tr>
+            <tr>
+              <td>15</td>
+              <td>hdfs dfs -mv</td>
+              <td>Move/cut within HDFS</td>
+            </tr>
+            <tr>
+              <td>16</td>
+              <td>hdfs dfs -setrep -w</td>
+              <td>Change file replication factor</td>
+            </tr>
+            <tr>
+              <td>17</td>
+              <td>hdfs dfs -appendToFile</td>
+              <td>Append local file to HDFS file</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Footer -->
+      <div class="footnote">
+        <i class="fas fa-check-circle"></i>
+        <span>HDFS Commands Reference · formatted for clarity</span>
+        <i class="fas fa-terminal"></i>
+      </div>
+    </div>
+
+    <!-- ===== Digital Signature (fixed at bottom) ===== -->
+    <div class="digital-signature">AG</div>
+  </body>
+</html>
