@@ -1,0 +1,1027 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Git Commands — Complete Documentation</title>
+    <style>
+      /* ===== Reset & Base ===== */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --git-orange: #f14e32;
+        --git-orange-dark: #c73a22;
+        --git-orange-light: #fff0ed;
+        --terminal-bg: #1e1e1e;
+        --terminal-text: #e6e6e6;
+        --terminal-comment: #6a9955;
+        --terminal-prompt: #4ec9b0;
+        --bg: #f7f7f9;
+        --card-bg: #ffffff;
+        --text: #1f2328;
+        --text-muted: #57606a;
+        --border: #e1e4e8;
+        --shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04);
+        --shadow-hover:
+          0 2px 6px rgba(0, 0, 0, 0.08), 0 8px 24px rgba(0, 0, 0, 0.08);
+        --radius: 10px;
+        --font-sans:
+          "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif;
+        --font-mono:
+          "Fira Code", "Cascadia Code", Consolas, "Courier New", monospace;
+      }
+
+      html {
+        scroll-behavior: smooth;
+        scroll-padding-top: 80px;
+      }
+
+      body {
+        font-family: var(--font-sans);
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.65;
+        font-size: 16px;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* ===== Header ===== */
+      header {
+        background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
+        color: #fff;
+        padding: 3rem 1.5rem 2.5rem;
+        border-bottom: 4px solid var(--git-orange);
+        position: relative;
+        overflow: hidden;
+      }
+
+      header::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 500px;
+        height: 500px;
+        background: radial-gradient(
+          circle,
+          rgba(241, 78, 50, 0.15) 0%,
+          transparent 70%
+        );
+        pointer-events: none;
+      }
+
+      .header-inner {
+        max-width: 1080px;
+        margin: 0 auto;
+        position: relative;
+      }
+
+      .logo-line {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 0.75rem;
+      }
+
+      .git-logo {
+        width: 44px;
+        height: 44px;
+        background: var(--git-orange);
+        border-radius: 10px;
+        display: grid;
+        place-items: center;
+        font-weight: 800;
+        font-size: 1.4rem;
+        color: #fff;
+        transform: rotate(-8deg);
+        box-shadow: 0 4px 16px rgba(241, 78, 50, 0.4);
+      }
+
+      header h1 {
+        font-size: clamp(1.8rem, 4vw, 2.6rem);
+        font-weight: 800;
+        letter-spacing: -0.02em;
+      }
+
+      header p.subtitle {
+        color: #b0b0b0;
+        font-size: 1.05rem;
+        max-width: 640px;
+        margin-top: 0.5rem;
+      }
+
+      .badge {
+        display: inline-block;
+        background: rgba(241, 78, 50, 0.15);
+        color: var(--git-orange);
+        border: 1px solid rgba(241, 78, 50, 0.3);
+        padding: 0.2rem 0.7rem;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        margin-top: 1rem;
+        font-family: var(--font-mono);
+      }
+
+      /* ===== Layout ===== */
+      .layout {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 2.5rem 1.5rem 4rem;
+        display: grid;
+        grid-template-columns: 240px 1fr;
+        gap: 2.5rem;
+        align-items: start;
+      }
+
+      /* ===== Sidebar TOC ===== */
+      .toc {
+        position: sticky;
+        top: 1.5rem;
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 1.25rem;
+        box-shadow: var(--shadow);
+      }
+
+      .toc h2 {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-muted);
+        margin-bottom: 0.75rem;
+        font-weight: 700;
+      }
+
+      .toc ul {
+        list-style: none;
+      }
+
+      .toc li {
+        margin-bottom: 0.15rem;
+      }
+
+      .toc a {
+        display: block;
+        padding: 0.35rem 0.6rem;
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 0.88rem;
+        border-radius: 6px;
+        border-left: 2px solid transparent;
+        transition: all 0.15s ease;
+      }
+
+      .toc a:hover {
+        background: var(--git-orange-light);
+        color: var(--git-orange-dark);
+        border-left-color: var(--git-orange);
+      }
+
+      /* ===== Main Content ===== */
+      main {
+        min-width: 0;
+      }
+
+      section {
+        margin-bottom: 3rem;
+      }
+
+      section h2 {
+        font-size: 1.6rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        margin-bottom: 0.4rem;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+      }
+
+      section h2 .num {
+        display: inline-grid;
+        place-items: center;
+        width: 32px;
+        height: 32px;
+        background: var(--git-orange);
+        color: #fff;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 800;
+        flex-shrink: 0;
+      }
+
+      section > p.lead {
+        color: var(--text-muted);
+        margin-bottom: 1.5rem;
+        font-size: 0.95rem;
+      }
+
+      /* ===== Command Card ===== */
+      .cmd-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 1.25rem 1.35rem;
+        margin-bottom: 1.1rem;
+        box-shadow: var(--shadow);
+        transition:
+          box-shadow 0.2s ease,
+          transform 0.2s ease;
+      }
+
+      .cmd-card:hover {
+        box-shadow: var(--shadow-hover);
+        transform: translateY(-1px);
+      }
+
+      .cmd-card h3 {
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 0.6rem;
+        color: var(--text);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .cmd-card h3::before {
+        content: "";
+        width: 4px;
+        height: 18px;
+        background: var(--git-orange);
+        border-radius: 2px;
+        flex-shrink: 0;
+      }
+
+      .cmd-card p {
+        color: var(--text-muted);
+        font-size: 0.92rem;
+        margin-bottom: 0.8rem;
+      }
+
+      .cmd-card p:last-child {
+        margin-bottom: 0;
+      }
+
+      .cmd-card strong {
+        color: var(--text);
+        font-weight: 600;
+      }
+
+      /* ===== Terminal Code Block ===== */
+      .term {
+        background: var(--terminal-bg);
+        border-radius: 8px;
+        overflow: hidden;
+        margin: 0.75rem 0;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+      }
+
+      .term-bar {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 0.5rem 0.8rem;
+        background: #252526;
+        border-bottom: 1px solid #333;
+      }
+
+      .dot {
+        width: 11px;
+        height: 11px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+
+      .dot.red {
+        background: #ff5f56;
+      }
+      .dot.yellow {
+        background: #ffbd2e;
+      }
+      .dot.green {
+        background: #27c93f;
+      }
+
+      .term-bar .term-label {
+        margin-left: auto;
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        color: #7a7a7a;
+      }
+
+      .term pre {
+        margin: 0;
+        padding: 0.9rem 1rem;
+        overflow-x: auto;
+        font-family: var(--font-mono);
+        font-size: 0.88rem;
+        line-height: 1.6;
+        color: var(--terminal-text);
+        tab-size: 2;
+      }
+
+      .term pre code {
+        font-family: inherit;
+        white-space: pre;
+      }
+
+      .term .prompt {
+        color: var(--terminal-prompt);
+        user-select: none;
+      }
+
+      .term .comment {
+        color: var(--terminal-comment);
+        font-style: italic;
+      }
+
+      .term .flag {
+        color: #dcdcaa;
+      }
+
+      .term .arg {
+        color: #ce9178;
+      }
+
+      /* ===== Flags Table ===== */
+      .flags {
+        margin-top: 0.75rem;
+        border-top: 1px dashed var(--border);
+        padding-top: 0.75rem;
+      }
+
+      .flags-title {
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--text-muted);
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+      }
+
+      .flags table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.86rem;
+      }
+
+      .flags td {
+        padding: 0.3rem 0.5rem;
+        vertical-align: top;
+        border-bottom: 1px solid #f0f1f3;
+      }
+
+      .flags tr:last-child td {
+        border-bottom: none;
+      }
+
+      .flags td:first-child {
+        width: 110px;
+        font-family: var(--font-mono);
+        color: var(--git-orange-dark);
+        font-weight: 600;
+        white-space: nowrap;
+      }
+
+      .flags td:last-child {
+        color: var(--text-muted);
+      }
+
+      /* ===== Note Box ===== */
+      .note {
+        display: flex;
+        gap: 0.6rem;
+        background: #fff8e6;
+        border: 1px solid #f5d77a;
+        border-left: 4px solid #e0a800;
+        border-radius: 8px;
+        padding: 0.75rem 0.9rem;
+        margin-top: 0.75rem;
+        font-size: 0.86rem;
+        color: #5c4700;
+      }
+
+      .note.warn {
+        background: #fff0ed;
+        border-color: #ffc9be;
+        border-left-color: var(--git-orange);
+        color: #7a2a1a;
+      }
+
+      .note .icon {
+        flex-shrink: 0;
+        font-weight: 800;
+      }
+
+      /* ===== Inline code ===== */
+      code.inline {
+        font-family: var(--font-mono);
+        background: #eef0f3;
+        color: var(--git-orange-dark);
+        padding: 0.1rem 0.4rem;
+        border-radius: 4px;
+        font-size: 0.86em;
+        font-weight: 600;
+      }
+
+      /* ===== Footer ===== */
+      footer {
+        text-align: center;
+        padding: 2rem 1.5rem 3rem;
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        border-top: 1px solid var(--border);
+        margin-top: 1rem;
+      }
+
+      footer .git-mark {
+        color: var(--git-orange);
+        font-weight: 700;
+      }
+
+      /* ===== Responsive ===== */
+      @media (max-width: 860px) {
+        .layout {
+          grid-template-columns: 1fr;
+          gap: 1.5rem;
+          padding: 1.5rem 1rem 3rem;
+        }
+
+        .toc {
+          position: static;
+          order: -1;
+        }
+
+        .toc ul {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+          gap: 0.15rem;
+        }
+      }
+
+      @media (max-width: 520px) {
+        header {
+          padding: 2rem 1rem 1.75rem;
+        }
+
+        .cmd-card {
+          padding: 1rem;
+        }
+
+        .term pre {
+          font-size: 0.8rem;
+          padding: 0.75rem;
+        }
+
+        .flags td:first-child {
+          width: 90px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="header-inner">
+        <div class="logo-line">
+          <div class="git-logo">git</div>
+          <h1>Git Commands — Complete Documentation</h1>
+        </div>
+        <p class="subtitle">
+          A practical, beginner-friendly reference for every Git command you
+          need — from initializing a repository to branching, staging, and
+          beyond.
+        </p>
+        <span class="badge">v1.0 · single-page reference</span>
+      </div>
+    </header>
+
+    <div class="layout">
+      <!-- ===== Sidebar ===== -->
+      <aside class="toc">
+        <h2>Contents</h2>
+        <ul>
+          <li><a href="#init">1. Initialization</a></li>
+          <li><a href="#config">2. Configuration</a></li>
+          <li><a href="#alias">3. Aliasing</a></li>
+          <li><a href="#editor">4. Editing Config</a></li>
+          <li><a href="#files">5. File Operations</a></li>
+          <li><a href="#status">6. Status &amp; Log</a></li>
+          <li><a href="#staging">7. Staging &amp; Restoring</a></li>
+          <li><a href="#commit">8. Committing</a></li>
+          <li><a href="#branch">9. Branching</a></li>
+        </ul>
+      </aside>
+
+      <!-- ===== Main ===== -->
+      <main>
+        <!-- ============================================================ -->
+        <!-- 1. INITIALIZATION -->
+        <!-- ============================================================ -->
+        <section id="init">
+          <h2><span class="num">1</span> Initialization</h2>
+          <p class="lead">
+            Start a brand-new Git repository, or remove one entirely.
+          </p>
+
+          <div class="cmd-card">
+            <h3>git init</h3>
+            <p>
+              Creates a new, empty Git repository in the current directory. It
+              adds a hidden
+              <code class="inline">.git</code> folder that stores all
+              version-control data — every commit, branch, and configuration for
+              this project. Run it once per project.
+            </p>
+            <div class="term">
+              <div class="term-bar">
+                <span class="dot red"></span><span class="dot yellow"></span
+                ><span class="dot green"></span>
+                <span class="term-label">bash</span>
+              </div>
+              <pre><code><span class="prompt">$</span> git init
+<span class="comment"># Initialized empty Git repository in /path/to/project/.git/</span></code></pre>
+            </div>
+          </div>
+
+          <div class="cmd-card">
+            <h3>git init "project name"</h3>
+            <p>
+              Creates a new folder with the given name
+              <strong>and</strong> initializes a Git repository inside it — all
+              in one step. Useful when you want to start a fresh project without
+              creating the directory manually first.
+            </p>
+            <div class="term">
+              <div class="term-bar">
+                <span class="dot red"></span><span class="dot yellow"></span
+                ><span class="dot green"></span>
+                <span class="term-label">bash</span>
+              </div>
+              <pre><code><span class="prompt">$</span> git init my-login-project
+<span class="comment"># Initialized empty Git repository in .../my-login-project/.git/</span></code></pre>
+            </div>
+          </div>
+
+          <div class="cmd-card">
+            <h3>rm -rf .git</h3>
+            <p>
+              <strong>Deletes the Git repository entirely</strong> by removing
+              the hidden <code class="inline">.git</code> folder. All commit
+              history, branches, and configuration for this project are gone —
+              the files remain, but they are no longer tracked.
+            </p>
+            <div class="term">
+              <div class="term-bar">
+                <span class="dot red"></span><span class="dot yellow"></span
+                ><span class="dot green"></span>
+                <span class="term-label">bash</span>
+              </div>
+              <pre><code><span class="prompt">$</span> rm -rf .git</code></pre>
+            </div>
+            <div class="flags">
+              <div class="flags-title">Flags explained</div>
+              <table>
+                <tr>
+                  <td>-r</td>
+                  <td>
+                    Recursive — delete folders and everything inside them.
+                  </td>
+                </tr>
+                <tr>
+                  <td>-f</td>
+                  <td>
+                    Force — never ask for confirmation, ignore missing files.
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="note warn">
+              <span class="icon">⚠</span>
+              <span
+                >This is <strong>irreversible</strong>. The entire history is
+                destroyed. Use only when you truly want to un-track the
+                project.</span
+              >
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================================ -->
+        <!-- 2. CONFIGURATION -->
+        <!-- ============================================================ -->
+        <section id="config">
+          <h2><span class="num">2</span> Configuration</h2>
+          <p class="lead">
+            Set who you are, at the global (machine-wide) or local
+            (per-repository) level.
+          </p>
+
+          <div class="cmd-card">
+            <h3>git config --global user.name "your name"</h3>
+            <p>
+              Sets the author name used in commits for
+              <strong>every repository</strong> on this machine. This is the
+              identity attached to your commits.
+            </p>
+            <div class="term">
+              <div class="term-bar">
+                <span class="dot red"></span><span class="dot yellow"></span
+                ><span class="dot green"></span>
+                <span class="term-label">bash</span>
+              </div>
+              <pre><code><span class="prompt">$</span> git config <span class="flag">--global</span> user.name <span class="arg">"Ahmed Ibrahim"</span></code></pre>
+            </div>
+            <div class="flags">
+              <div class="flags-title">Flags explained</div>
+              <table>
+                <tr>
+                  <td>--global</td>
+                  <td>
+                    Applies to all repositories for the current OS user (stored
+                    in <code class="inline">~/.gitconfig</code>).
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </div>
+
+          <div class="cmd-card">
+            <h3>git config --global user.email "your email"</h3>
+            <p>
+              Sets the author email for all repositories. Used by GitHub/GitLab
+              to link commits to your account, so it should match the email on
+              your hosting provider.
+            </p>
+            <div class="term">
+              <div class="term-bar">
+                <span class="dot red"></span><span class="dot yellow"></span
+                ><span class="dot green"></span>
+                <span class="term-label">bash</span>
+              </div>
+              <pre><code><span class="prompt">$</span> git config <span class="flag">--global</span> user.email <span class="arg">"ahmed@example.com"</span></code></pre>
+            </div>
+          </div>
+
+          <div class="cmd-card">
+            <h3>git config --local user.name "your name"</h3>
+            <p>
+              Sets the author name for <strong>this repository only</strong>.
+              Overrides the global value. Stored in
+              <code class="inline">.git/config</code> inside the repo. Useful
+              when you contribute to a project with a different identity.
+            </p>
+            <div class="term">
+              <div class="term-bar">
+                <span class="dot red"></span><span class="dot yellow"></span
+                ><span class="dot green"></span>
+                <span class="term-label">bash</span>
+              </div>
+              <pre><code><span class="prompt">$</span> git config <span class="flag">--local</span> user.name <span class="arg">"Work Account"</span></code></pre>
+            </div>
+            <div class="flags">
+              <div class="flags-title">Flags explained</div>
+              <table>
+                <tr>
+                  <td>--local</td>
+                  <td>
+                    Applies only to the current repository (stored in
+                    <code class="inline">.git/config</code>).
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </div>
+
+          <div class="cmd-card">
+            <h3>git config --local user.email "your email"</h3>
+            <p>
+              Sets the author email for this repository only. Same override
+              logic as the local name above.
+            </p>
+            <div class="term">
+              <div class="term-bar">
+                <span class="dot red"></span><span class="dot yellow"></span
+                ><span class="dot green"></span>
+                <span class="term-label">bash</span>
+              </div>
+              <pre><code><span class="prompt">$</span> git config <span class="flag">--local</span> user.email <span class="arg">"work@company.com"</span></code></pre>
+            </div>
+          </div>
+
+          <div class="cmd-card">
+            <h3>
+              git config --global user.name &nbsp;/&nbsp; git config --global
+              user.email
+            </h3>
+            <p>
+              <strong>Reads</strong> (rather than sets) the configured value.
+              Omit the value argument to print what is currently stored at that
+              level.
+            </p>
+            <div class="term">
+              <div class="term-bar">
+                <span class="dot red"></span><span class="dot yellow"></span
+                ><span class="dot green"></span>
+                <span class="term-label">bash</span>
+              </div>
+              <pre><code><span class="prompt">$</span> git config <span class="flag">--global</span> user.name
+<span class="comment"># Ahmed Ibrahim</span></code></pre>
+            </div>
+          </div>
+
+          <div class="cmd-card">
+            <h3>
+              git config --local user.name &nbsp;/&nbsp; git config --local
+              user.email
+            </h3>
+            <p>
+              Reads the <strong>repository-specific</strong> value. If no local
+              value is set, this returns nothing (the global value is used
+              instead at commit time).
+            </p>
+            <div class="term">
+              <div class="term-bar">
+                <span class="dot red"></span><span class="dot yellow"></span
+                ><span class="dot green"></span>
+                <span class="term-label">bash</span>
+              </div>
+              <pre><code><span class="prompt">$</span> git config <span class="flag">--local</span> user.email</code></pre>
+            </div>
+          </div>
+
+          <div class="cmd-card">
+            <h3>git config --list</h3>
+            <p>
+              Lists <strong>every</strong> configuration value currently in
+              effect — system, global, and local — in one flat output. Local
+              values appear last and win when duplicated. Add
+              <code class="inline">--show-origin</code> to see which file each
+              value comes from.
+            </p>
+            <div class="term">
+              <div class="term-bar">
+                <span class="dot red"></span><span class="dot yellow"></span
+                ><span class="dot green"></span>
+                <span class="term-label">bash</span>
+              </div>
+              <pre><code><span class="prompt">$</span> git config <span class="flag">--list</span>
+user.name=Ahmed Ibrahim
+user.email=ahmed@example.com
+core.autocrlf=true</code></pre>
+            </div>
+          </div>
+
+          <div class="cmd-card">
+            <h3>git config --global --unset user.name</h3>
+            <p>
+              <strong>Removes</strong> the specified key from the global config.
+              Useful when you set a value by mistake or want to fall back to a
+              lower-priority setting.
+            </p>
+            <div class="term">
+              <div class="term-bar">
+                <span class="dot red"></span><span class="dot yellow"></span
+                ><span class="dot green"></span>
+                <span class="term-label">bash</span>
+              </div>
+              <pre><code><span class="prompt">$</span> git config <span class="flag">--global --unset</span> user.name</code></pre>
+            </div>
+            <div class="flags">
+              <div class="flags-title">Flags explained</div>
+              <table>
+                <tr>
+                  <td>--unset</td>
+                  <td>Deletes the named key from the chosen config level.</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+
+          <div class="cmd-card">
+            <h3>git config --global --unset user.email</h3>
+            <p>Same as above, but removes the global email key.</p>
+            <div class="term">
+              <div class="term-bar">
+                <span class="dot red"></span><span class="dot yellow"></span
+                ><span class="dot green"></span>
+                <span class="term-label">bash</span>
+              </div>
+              <pre><code><span class="prompt">$</span> git config <span class="flag">--global --unset</span> user.email</code></pre>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================================ -->
+        <!-- 3. ALIASING -->
+        <!-- ============================================================ -->
+        <section id="alias">
+          <h2><span class="num">3</span> Aliasing</h2>
+          <p class="lead">Create short nicknames for long commands.</p>
+
+          <div class="cmd-card">
+            <h3>git config --global alias."alias name" "command"</h3>
+            <p>
+              The general form:
+              <code class="inline">alias.&lt;name&gt; &lt;command&gt;</code>
+              maps a short word to any Git command. Use quotes around commands
+              that contain spaces. The alias is invoked as
+              <code class="inline">git &lt;name&gt;</code>.
+            </p>
+            <div class="term">
+              <div class="term-bar">
+                <span class="dot red"></span><span class="dot yellow"></span
+                ><span class="dot green"></span>
+                <span class="term-label">bash</span>
+              </div>
+              <pre><code><span class="prompt">$</span> git config <span class="flag">--global</span> alias.<span class="arg">"br"</span> branch</code></pre>
+            </div>
+          </div>
+
+          <div class="cmd-card">
+            <h3>git config --global alias.st status</h3>
+            <p>
+              Creates <code class="inline">git st</code> as a shortcut for
+              <code class="inline">git status</code>. The most popular alias —
+              saves three keystrokes per check.
+            </p>
+            <div class="term">
+              <div class="term-bar">
+                <span class="dot red"></span><span class="dot yellow"></span
+                ><span class="dot green"></span>
+                <span class="term-label">bash</span>
+              </div>
+              <pre><code><span class="prompt">$</span> git config <span class="flag">--global</span> alias.st status
+<span class="prompt">$</span> git st
+<span class="comment"># On branch main — nothing to commit, working tree clean</span></code></pre>
+            </div>
+          </div>
+
+          <div class="cmd-card">
+            <h3>git config --global alias.br branch</h3>
+            <p>
+              Creates <code class="inline">git br</code> for
+              <code class="inline">git branch</code>.
+            </p>
+            <div class="term">
+              <div class="term-bar">
+                <span class="dot red"></span><span class="dot yellow"></span
+                ><span class="dot green"></span>
+                <span class="term-label">bash</span>
+              </div>
+              <pre><code><span class="prompt">$</span> git config <span class="flag">--global</span> alias.br branch
+<span class="prompt">$</span> git br
+<span class="comment"># * main</span>
+<span class="comment">#   dark-mode</span></code></pre>
+            </div>
+          </div>
+
+          <div class="cmd-card">
+            <h3>git config --global alias.cm "commit -m"</h3>
+            <p>
+              Creates <code class="inline">git cm "message"</code> as shorthand
+              for <code class="inline">git commit -m "message"</code>. Quotes
+              are required because the command contains a space. Note that you
+              pass the message after the alias:
+              <code class="inline">git cm "fix bug"</code>.
+            </p>
+            <div class="term">
+              <div class="term-bar">
+                <span class="dot red"></span><span class="dot yellow"></span
+                ><span class="dot green"></span>
+                <span class="term-label">bash</span>
+              </div>
+              <pre><code><span class="prompt">$</span> git config <span class="flag">--global</span> alias.cm <span class="arg">"commit -m"</span>
+<span class="prompt">$</span> git cm <span class="arg">"Initial commit"</span></code></pre>
+            </div>
+          </div>
+
+          <div class="note">
+            <span class="icon">💡</span>
+            <span
+              >Inside an alias, <strong>never</strong> include the leading
+              <code class="inline">git</code>. Write
+              <code class="inline">branch</code>, not
+              <code class="inline">git branch</code>.</span
+            >
+          </div>
+        </section>
+
+        <!-- ============================================================ -->
+        <!-- 4. EDITING CONFIG -->
+        <!-- ============================================================ -->
+        <section id="editor">
+          <h2><span class="num">4</span> Editing Configuration</h2>
+          <p class="lead">Open the raw config file directly in your editor.</p>
+
+          <div class="cmd-card">
+            <h3>git config --global --edit</h3>
+            <p>
+              Opens the <strong>global</strong> config file (<code
+                class="inline"
+                >~/.gitconfig</code
+              >) in the editor defined by
+              <code class="inline">core.editor</code>. Handy for editing many
+              values at once or adding complex aliases.
+            </p>
+            <div class="term">
+              <div class="term-bar">
+                <span class="dot red"></span><span class="dot yellow"></span
+                ><span class="dot green"></span>
+                <span class="term-label">bash</span>
+              </div>
+              <pre><code><span class="prompt">$</span> git config <span class="flag">--global --edit</span>
+<span class="comment"># opens ~/.gitconfig in your editor</span></code></pre>
+            </div>
+            <div class="flags">
+              <div class="flags-title">Flags explained</div>
+              <table>
+                <tr>
+                  <td>--edit</td>
+                  <td>
+                    Open the config file in
+                    <code class="inline">$EDITOR</code> /
+                    <code class="inline">core.editor</code> instead of editing a
+                    single key.
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <p>
+              To set which editor opens:
+              <code class="inline"
+                >git config --global core.editor "code --wait"</code
+              >
+              (VS Code) or <code class="inline">"nano"</code>.
+            </p>
+          </div>
+        </section>
+
+        <!-- ============================================================ -->
+        <!-- 5. FILE OPERATIONS -->
+        <!-- ============================================================ -->
+        <section id="files">
+          <h2><span class="num">5</span> File Operations</h2>
+          <p class="lead">
+            Shell commands commonly used alongside Git (not Git itself, but
+            essential).
+          </p>
+
+          <div class="cmd-card">
+            <h3>touch "file name"</h3>
+            <p>
+              Creates an empty file (or updates its timestamp if it already
+              exists). Used to scaffold new files before adding them to Git.
+            </p>
+            <div class="term">
+              <div class="term-bar">
+                <span class="dot red"></span><span class="dot yellow"></span
+                ><span class="dot green"></span>
+                <span class="term-label">bash</span>
+              </div>
+              <pre><code><span class="prompt">$</span> touch index.html style.css script.js</code></pre>
+            </div>
+          </div>
+
+          <div class="cmd-card">
+            <h3>rm -rf "file name"</h3>
+            <p>
+              Deletes a file or folder permanently. Because Git tracks
+              deletions, removing a tracked file and committing records the
+              deletion in history.
+            </p>
+            <div class="term">
+              <div class="term-bar">
+                <span class="dot red"></span><span class="dot yellow"></span
+                ><span class="dot green"></span>
+                <span class="term-label">bash</span>
+              </div>
+              <pre><code><span class="prompt">$</span> rm -rf old-feature/</code></pre>
+            </div>
+            <div class="flags">
+              <div class="flags-title">Flags explained</div>
+              <table>
+                <tr>
+                  <td>-r</td>
+                  <td>Recursive: descend into directories.</td>
+                </tr>
+                <tr>
+                  <td>-f</td>
+                  <td>Force: suppress</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>
