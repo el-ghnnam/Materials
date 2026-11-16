@@ -1,19 +1,46 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta
       name="description"
-      content="A practical, flag-by-flag field guide to essential Git commands. Learn initialization, configuration, aliases, staging, committing, and branching."
-    />
-    <meta name="author" content="Ahmed Ghnnam" />
-    <meta name="theme-color" content="#f7f5f1" />
+      content="A practical, flag-by-flag field guide to essential Git commands. Learn initialization, configuration, aliases, staging, committing, branching, and merging."
+    >
+    <meta name="author" content="Ahmed Ghnnam">
+    <meta name="theme-color" content="#f7f5f1">
+    <meta name="color-scheme" content="light dark">
     <title>Git Commands — A Practical Field Guide</title>
+    <script>
+      /* Apply the saved theme before first paint to avoid a flash. */
+      (function () {
+        var root = document.documentElement;
+        root.classList.add("has-js");
+
+        var stored = null;
+        try {
+          stored = window.localStorage.getItem("git-guide-theme");
+        } catch (error) {
+          stored = null;
+        }
+
+        var prefersDark =
+          window.matchMedia &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var theme =
+          stored === "dark" || stored === "light"
+            ? stored
+            : prefersDark
+              ? "dark"
+              : "light";
+
+        root.setAttribute("data-theme", theme);
+      })();
+    </script>
     <link
       rel="icon"
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%23F14E32'/%3E%3Cg fill='none' stroke='white' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='20' cy='18' r='5'/%3E%3Ccircle cx='44' cy='18' r='5'/%3E%3Ccircle cx='44' cy='46' r='5'/%3E%3Cpath d='M20 23v9a8 8 0 0 0 8 8h8a8 8 0 0 0 8-8V23'/%3E%3C/g%3E%3C/svg%3E"
-    />
+    >
     <style>
       /* ============================================================
        1. Design tokens
@@ -84,6 +111,7 @@
       html {
         scroll-behavior: smooth;
         scroll-padding-top: calc(var(--header-height) + 1.5rem);
+        color-scheme: light;
         -webkit-text-size-adjust: 100%;
       }
 
@@ -148,6 +176,47 @@
 
       .skip-link:focus {
         transform: translateY(0);
+      }
+
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        clip-path: inset(50%);
+        white-space: nowrap;
+      }
+
+      .icon-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.35rem;
+        height: 2.35rem;
+        flex: 0 0 auto;
+        padding: 0;
+        border: 1px solid var(--line-strong);
+        border-radius: 8px;
+        background: var(--surface);
+        color: var(--ink-soft);
+        cursor: pointer;
+        transition:
+          background-color 0.18s ease,
+          border-color 0.18s ease,
+          color 0.18s ease,
+          transform 0.18s ease;
+      }
+
+      .icon-button:hover {
+        border-color: var(--git);
+        color: var(--git-ink);
+        transform: translateY(-1px);
+      }
+
+      .icon-button svg {
+        width: 1.05rem;
+        height: 1.05rem;
       }
 
       /* ============================================================
@@ -367,6 +436,34 @@
       .header-cta:hover {
         background: var(--git-ink);
         transform: translateY(-1px);
+      }
+
+      .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-left: 0.15rem;
+      }
+
+      .theme-toggle {
+        display: none;
+      }
+
+      .has-js .theme-toggle {
+        display: inline-flex;
+      }
+
+      .theme-toggle__sun,
+      [data-theme="dark"] .theme-toggle__moon {
+        display: none;
+      }
+
+      [data-theme="dark"] .theme-toggle__sun {
+        display: block;
+      }
+
+      .menu-toggle {
+        display: none;
       }
 
       /* ============================================================
@@ -785,6 +882,121 @@
       }
 
       /* ============================================================
+       5b. Common tasks
+       ============================================================ */
+      .quick-tasks {
+        border-bottom: 1px solid var(--line);
+        background: var(--surface-soft);
+      }
+
+      .quick-tasks__inner {
+        display: grid;
+        grid-template-columns: minmax(13rem, 0.42fr) minmax(0, 1fr);
+        align-items: start;
+        gap: clamp(1.5rem, 4vw, 3.25rem);
+        padding-block: clamp(1.5rem, 3vw, 2.35rem);
+      }
+
+      .quick-tasks h2 {
+        margin: 0.35rem 0 0.4rem;
+        font-size: clamp(1.2rem, 2.1vw, 1.5rem);
+        font-weight: 800;
+        line-height: 1.12;
+        letter-spacing: -0.035em;
+      }
+
+      .quick-tasks__lede {
+        max-width: 34ch;
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.77rem;
+        line-height: 1.6;
+      }
+
+      .quick-tasks__grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.55rem;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .task-card {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.55rem;
+        height: 100%;
+        padding: 0.72rem 0.75rem;
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        background: var(--surface);
+        color: inherit;
+        text-decoration: none;
+        transition:
+          border-color 0.18s ease,
+          box-shadow 0.18s ease,
+          transform 0.18s ease;
+      }
+
+      .task-card:hover {
+        border-color: #e5b9ad;
+        box-shadow: 0 12px 28px -24px rgba(35, 30, 25, 0.55);
+        transform: translateY(-1px);
+      }
+
+      .task-card__icon {
+        display: grid;
+        place-items: center;
+        width: 1.6rem;
+        height: 1.6rem;
+        flex: 0 0 auto;
+        border-radius: 6px;
+        background: var(--git-soft);
+        color: var(--git-ink);
+      }
+
+      .task-card__icon svg {
+        width: 0.85rem;
+        height: 0.85rem;
+      }
+
+      .task-card__text {
+        min-width: 0;
+      }
+
+      .task-card strong {
+        display: block;
+        color: var(--ink);
+        font-size: 0.73rem;
+        font-weight: 750;
+        line-height: 1.3;
+      }
+
+      .task-card small {
+        display: block;
+        margin-top: 0.12rem;
+        color: var(--muted);
+        font-size: 0.62rem;
+        line-height: 1.4;
+      }
+
+      .task-card__arrow {
+        margin-left: auto;
+        padding-top: 0.1rem;
+        color: var(--muted);
+        font-family: var(--font-mono);
+        font-size: 0.72rem;
+        transform: translateX(0);
+        transition: transform 0.18s ease;
+      }
+
+      .task-card:hover .task-card__arrow {
+        color: var(--git-ink);
+        transform: translateX(2px);
+      }
+
+      /* ============================================================
        6. Documentation layout
        ============================================================ */
       .docs-layout {
@@ -803,6 +1015,10 @@
         padding-right: 0.35rem;
         scrollbar-width: thin;
         scrollbar-color: #cdc5ba transparent;
+      }
+
+      .sidebar-backdrop {
+        display: none;
       }
 
       .sidebar__label {
@@ -849,7 +1065,7 @@
       .sidebar__num {
         width: 1.25rem;
         flex: 0 0 auto;
-        color: #aaa298;
+        color: var(--muted);
         font-family: var(--font-mono);
         font-size: 0.61rem;
       }
@@ -859,9 +1075,220 @@
       }
 
       .sidebar__count {
-        color: #afa79d;
+        color: var(--muted);
         font-family: var(--font-mono);
         font-size: 0.6rem;
+      }
+
+      .sidebar__head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.4rem;
+        margin-bottom: 0.55rem;
+      }
+
+      .sidebar__head .sidebar__label {
+        margin: 0 0 0 0.55rem;
+      }
+
+      .sidebar__close {
+        display: none;
+      }
+
+      .sidebar__search {
+        display: none;
+      }
+
+      .has-js .sidebar__search {
+        position: sticky;
+        z-index: 4;
+        top: 0;
+        display: block;
+        margin-bottom: 0.55rem;
+        padding-bottom: 0.4rem;
+        background: var(--paper);
+      }
+
+      .sidebar__search-box {
+        position: relative;
+        display: flex;
+        align-items: center;
+      }
+
+      .sidebar__search-box > svg {
+        position: absolute;
+        left: 0.58rem;
+        width: 0.82rem;
+        height: 0.82rem;
+        color: var(--muted-soft);
+        pointer-events: none;
+      }
+
+      .sidebar__search input {
+        width: 100%;
+        min-height: 2.2rem;
+        padding: 0.46rem 2rem 0.46rem 1.9rem;
+        border: 1px solid var(--line-strong);
+        border-radius: 8px;
+        background: var(--surface);
+        color: var(--ink);
+        font-family: var(--font-sans);
+        font-size: 0.74rem;
+        line-height: 1.3;
+      }
+
+      .sidebar__search input::placeholder {
+        color: var(--muted);
+        opacity: 1;
+      }
+
+      .sidebar__search input:focus-visible {
+        outline-offset: 1px;
+      }
+
+      .sidebar__search input::-webkit-search-cancel-button,
+      .sidebar__search input::-webkit-search-decoration {
+        display: none;
+        -webkit-appearance: none;
+      }
+
+      .sidebar__search-clear {
+        position: absolute;
+        right: 0.22rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.65rem;
+        height: 1.65rem;
+        padding: 0;
+        border: 1px solid transparent;
+        border-radius: 5px;
+        background: transparent;
+        color: var(--muted);
+        font-family: var(--font-mono);
+        font-size: 0.9rem;
+        line-height: 1;
+        cursor: pointer;
+      }
+
+      .sidebar__search-clear:hover {
+        border-color: var(--line);
+        background: var(--paper-deep);
+        color: var(--ink);
+      }
+
+      .sidebar__search-clear[hidden] {
+        display: none;
+      }
+
+      .sidebar__search-status {
+        margin: 0.38rem 0.18rem 0;
+        color: var(--muted);
+        font-size: 0.62rem;
+        line-height: 1.4;
+      }
+
+      .sidebar__search-status[hidden] {
+        display: none;
+      }
+
+      .sidebar__row {
+        display: flex;
+        align-items: center;
+        gap: 0.1rem;
+      }
+
+      .sidebar__row .sidebar__link {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .sidebar__toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.95rem;
+        height: 1.95rem;
+        flex: 0 0 auto;
+        padding: 0;
+        border: 1px solid transparent;
+        border-radius: 6px;
+        background: transparent;
+        color: var(--muted-soft);
+        cursor: pointer;
+        transition:
+          background-color 0.16s ease,
+          border-color 0.16s ease,
+          color 0.16s ease;
+      }
+
+      .sidebar__toggle:hover {
+        border-color: var(--line);
+        background: var(--surface);
+        color: var(--ink);
+      }
+
+      .sidebar__toggle svg {
+        width: 0.78rem;
+        height: 0.78rem;
+        transition: transform 0.18s ease;
+      }
+
+      .sidebar__toggle[aria-expanded="true"] svg {
+        transform: rotate(90deg);
+      }
+
+      .sidebar__sublist {
+        display: grid;
+        gap: 0.02rem;
+        margin: 0.12rem 0 0.4rem 0.62rem;
+        padding: 0.1rem 0 0.1rem 0.65rem;
+        border-left: 1px solid var(--line);
+        list-style: none;
+      }
+
+      .sidebar__sublist[hidden] {
+        display: none;
+      }
+
+      .sidebar__cmd {
+        display: block;
+        padding: 0.33rem 0.42rem;
+        border: 1px solid transparent;
+        border-radius: 5px;
+        color: var(--ink-soft);
+        font-size: 0.69rem;
+        font-weight: 550;
+        line-height: 1.35;
+        text-decoration: none;
+        transition:
+          background-color 0.16s ease,
+          border-color 0.16s ease,
+          color 0.16s ease;
+      }
+
+      .sidebar__cmd:hover {
+        border-color: var(--line);
+        background: var(--surface);
+        color: var(--ink);
+      }
+
+      .sidebar__cmd.is-active {
+        border-color: #f2d4cc;
+        background: var(--git-wash);
+        color: var(--git-ink);
+        font-weight: 700;
+      }
+
+      .sidebar__link.is-active {
+        border-color: var(--line);
+        background: var(--surface);
+        color: var(--ink);
+      }
+
+      .sidebar__item.is-open > .sidebar__row .sidebar__link {
+        color: var(--ink);
       }
 
       .sidebar__rule {
@@ -1333,18 +1760,26 @@
       }
 
       .command-card--danger {
-        border-color: #efd3cd;
+        border-color: #eab3a6;
         background:
           linear-gradient(
             180deg,
-            rgba(255, 248, 246, 0.7),
-            rgba(255, 255, 255, 0) 10rem
+            rgba(255, 241, 237, 0.85),
+            rgba(255, 255, 255, 0) 11rem
           ),
           var(--surface);
+        box-shadow:
+          inset 3px 0 0 #d94329,
+          0 1px 1px rgba(35, 30, 25, 0.025),
+          0 18px 42px -38px rgba(35, 30, 25, 0.3);
       }
 
       .command-card--danger:hover {
-        border-color: #e7bfb5;
+        border-color: #df9384;
+        box-shadow:
+          inset 3px 0 0 #d94329,
+          0 1px 1px rgba(35, 30, 25, 0.025),
+          0 20px 55px -36px rgba(130, 35, 20, 0.45);
       }
 
       .command-card__header {
@@ -1524,6 +1959,11 @@
         white-space: pre;
       }
 
+      .terminal .tok-wrap {
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+      }
+
       .terminal::-webkit-scrollbar,
       .terminal pre::-webkit-scrollbar {
         height: 7px;
@@ -1536,6 +1976,53 @@
       .terminal pre::-webkit-scrollbar-thumb {
         border-radius: 99px;
         background: #4c4944;
+      }
+
+      .copy-btn {
+        position: absolute;
+        z-index: 3;
+        top: 0.4rem;
+        right: 0.5rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.24rem;
+        min-height: 1.32rem;
+        padding: 0.12rem 0.4rem;
+        border: 1px solid #3d3d3d;
+        border-radius: 4px;
+        background: #2c2c2c;
+        color: #c9c4bc;
+        font-family: var(--font-mono);
+        font-size: 0.55rem;
+        font-weight: 600;
+        line-height: 1;
+        letter-spacing: 0.02em;
+        cursor: pointer;
+        transition:
+          background-color 0.16s ease,
+          border-color 0.16s ease,
+          color 0.16s ease;
+      }
+
+      .copy-btn:hover {
+        border-color: #5a5a5a;
+        background: #363636;
+        color: #fff;
+      }
+
+      .copy-btn svg {
+        width: 0.62rem;
+        height: 0.62rem;
+      }
+
+      .copy-btn.is-copied {
+        border-color: #3f7a52;
+        background: #1f3a29;
+        color: #a7e0b7;
+      }
+
+      .terminal.has-copy .terminal__lang {
+        margin-right: 4.15rem;
       }
 
       /* Command card copy */
@@ -1769,21 +2256,53 @@
       }
 
       .callout--danger {
-        border-color: #f0ccc4;
-        background: #fff6f4;
+        position: relative;
+        gap: 0.8rem;
+        padding: 0.95rem 1rem 0.95rem 1.02rem;
+        border: 1.5px solid #d94329;
+        border-left-width: 5px;
+        border-radius: 10px;
+        background: #fff1ed;
+        box-shadow:
+          0 10px 26px -22px rgba(150, 38, 18, 0.9),
+          inset 0 0 0 1px rgba(255, 255, 255, 0.65);
       }
 
       .callout--danger .callout__icon {
-        background: var(--git);
+        width: 1.55rem;
+        height: 1.55rem;
+        margin-top: 0;
+        background: #c62f18;
         color: #fff;
+        font-size: 0.82rem;
+        box-shadow: 0 0 0 4px rgba(198, 47, 24, 0.14);
       }
 
       .callout--danger .callout__content strong {
-        color: #832d1d;
+        margin-bottom: 0.22rem;
+        color: #8a1909;
+        font-size: 0.82rem;
+      }
+
+      .callout--danger .callout__content strong::before {
+        content: "Destructive";
+        display: inline-block;
+        margin-right: 0.4rem;
+        padding: 0.1rem 0.34rem;
+        border-radius: 3px;
+        background: #c62f18;
+        color: #fff;
+        font-family: var(--font-mono);
+        font-size: 0.5rem;
+        font-weight: 700;
+        line-height: 1.35;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        vertical-align: 0.1em;
       }
 
       .callout--danger .callout__content p {
-        color: #735049;
+        color: #6f3a30;
       }
 
       .callout--info {
@@ -2071,6 +2590,297 @@
       /* ============================================================
        12. Responsive states
        ============================================================ */
+      /* ============================================================
+       12. Dark theme
+       ============================================================ */
+      [data-theme="dark"] {
+        color-scheme: dark;
+        --paper: #141210;
+        --paper-deep: #1e1a16;
+        --surface: #1c1815;
+        --surface-soft: #221e19;
+
+        --ink: #f4f0e9;
+        --ink-soft: #ded7cd;
+        --muted: #b2a99d;
+        --muted-soft: #978d81;
+        --line: #352e27;
+        --line-strong: #4b4137;
+
+        --git-ink: #ff9379;
+        --git-deep: #ff7356;
+        --git-soft: #34211a;
+        --git-wash: #281a15;
+
+        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+        --shadow-md: 0 18px 42px -30px rgba(0, 0, 0, 0.7);
+        --shadow-lg: 0 32px 72px -34px rgba(0, 0, 0, 0.85);
+      }
+
+      [data-theme="dark"] body {
+        background:
+          radial-gradient(
+            circle at 8% 0%,
+            rgba(241, 78, 50, 0.09),
+            transparent 32rem
+          ),
+          var(--paper);
+      }
+
+      [data-theme="dark"] .site-header {
+        border-bottom-color: rgba(255, 255, 255, 0.07);
+        background: rgba(20, 18, 16, 0.88);
+      }
+
+      [data-theme="dark"] .brand-tag {
+        border-left-color: var(--line-strong);
+        color: var(--muted-soft);
+      }
+
+      [data-theme="dark"] .site-nav a {
+        color: var(--muted);
+      }
+
+      [data-theme="dark"] .site-nav a:hover {
+        color: var(--ink);
+      }
+
+      [data-theme="dark"] .header-cta {
+        background: #ff9379;
+        color: #241009;
+      }
+
+      [data-theme="dark"] .header-cta:hover {
+        background: #ffab94;
+      }
+
+      [data-theme="dark"] .skip-link {
+        background: #f4f0e9;
+        color: #1a1512;
+      }
+
+      [data-theme="dark"] .hero {
+        background: linear-gradient(180deg, #191612 0%, var(--paper) 100%);
+      }
+
+      [data-theme="dark"] .hero::before {
+        background-image: radial-gradient(
+          circle,
+          rgba(255, 255, 255, 0.14) 1px,
+          transparent 1.4px
+        );
+      }
+
+      [data-theme="dark"] .hero__eyebrow {
+        border-color: #4c2b22;
+        background: rgba(255, 255, 255, 0.035);
+      }
+
+      [data-theme="dark"] .hero__sticker {
+        border-color: #5a2f25;
+        background: #2a1a15;
+        color: #ffb09c;
+      }
+
+      [data-theme="dark"] .button--secondary {
+        border-color: var(--line-strong);
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--ink);
+      }
+
+      [data-theme="dark"] .button--secondary:hover {
+        border-color: var(--git);
+        background: rgba(255, 255, 255, 0.07);
+      }
+
+      [data-theme="dark"] .button--primary {
+        background: #c8371e;
+        color: #fff;
+        box-shadow: 0 10px 24px -12px rgba(0, 0, 0, 0.8);
+      }
+
+      [data-theme="dark"] .button--primary:hover {
+        background: #ad2c16;
+      }
+
+      [data-theme="dark"] .flow-step code {
+        border-color: var(--line);
+        background: #26211c;
+        color: var(--git-ink);
+      }
+
+      [data-theme="dark"] .flow-step:nth-of-type(2) {
+        border-color: #5a2f25;
+      }
+
+      [data-theme="dark"] .flow-step:nth-of-type(2) .flow-step__tag {
+        background: #3a2019;
+        color: #ffab94;
+      }
+
+      [data-theme="dark"] .safety-bar {
+        border-color: #5d3025;
+        background: #251814;
+        color: #efb9ab;
+      }
+
+      [data-theme="dark"] .safety-bar strong {
+        color: #ffc7b8;
+      }
+
+      [data-theme="dark"] .sidebar__link:hover,
+      [data-theme="dark"] .sidebar__link.is-active {
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      [data-theme="dark"] .sidebar__num,
+      [data-theme="dark"] .sidebar__count {
+        color: var(--muted-soft);
+      }
+
+      [data-theme="dark"] .sidebar__search {
+        background: var(--paper);
+      }
+
+      [data-theme="dark"] .sidebar__cmd.is-active {
+        border-color: #5a2f25;
+      }
+
+      [data-theme="dark"] .sidebar-tip {
+        border-color: #4d2c24;
+        background: linear-gradient(145deg, #271913, var(--surface));
+      }
+
+      [data-theme="dark"] .mobile-toc {
+        background: var(--surface);
+      }
+
+      [data-theme="dark"] .command-card:hover {
+        border-color: #4b4137;
+      }
+
+      [data-theme="dark"] .command-card--danger {
+        border-color: #713125;
+        background:
+          linear-gradient(
+            180deg,
+            rgba(241, 78, 50, 0.1),
+            rgba(255, 255, 255, 0) 11rem
+          ),
+          var(--surface);
+        box-shadow:
+          inset 3px 0 0 #e8563a,
+          0 18px 42px -38px rgba(0, 0, 0, 0.7);
+      }
+
+      [data-theme="dark"] .command-card--danger:hover {
+        border-color: #8f3b2a;
+      }
+
+      [data-theme="dark"] .badge--git {
+        border-color: #6a3226;
+        background: #351c15;
+        color: #ffab97;
+      }
+
+      [data-theme="dark"] .badge--shell {
+        border-color: #4b4137;
+        background: #2a251f;
+        color: #d3cabe;
+      }
+
+      [data-theme="dark"] .badge--danger {
+        border-color: #713125;
+        background: #341713;
+        color: #ffab97;
+      }
+
+      [data-theme="dark"] .badge--info {
+        border-color: #315055;
+        background: #16292b;
+        color: #a6dbe5;
+      }
+
+      [data-theme="dark"] .badge--neutral {
+        border-color: #4b4137;
+        color: var(--muted);
+      }
+
+      [data-theme="dark"] .command-card__body code,
+      [data-theme="dark"] .callout code,
+      [data-theme="dark"] .sidebar-tip code,
+      [data-theme="dark"] .legend code,
+      [data-theme="dark"] .config-example__title code,
+      [data-theme="dark"] .config-example__note code {
+        border-color: #4a392f;
+        background: #2a1d18;
+        color: #ffb4a2;
+      }
+
+      [data-theme="dark"] .flag-panel {
+        border-top-color: var(--line);
+      }
+
+      [data-theme="dark"] .flag {
+        border-color: var(--line);
+      }
+
+      [data-theme="dark"] .flag dd code {
+        background: #2a251f;
+      }
+
+      [data-theme="dark"] .callout--danger {
+        border-color: #d94a2f;
+        background: #2a1512;
+        box-shadow:
+          0 10px 26px -22px rgba(0, 0, 0, 0.8),
+          inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+      }
+
+      [data-theme="dark"] .callout--danger .callout__content strong {
+        color: #ffb3a2;
+      }
+
+      [data-theme="dark"] .callout--danger .callout__content p {
+        color: #e2b6ab;
+      }
+
+      [data-theme="dark"] .callout--info {
+        border-color: #2c4a4e;
+        background: #16272a;
+      }
+
+      [data-theme="dark"] .callout--info .callout__content strong {
+        color: #a9dbe3;
+      }
+
+      [data-theme="dark"] .callout--tip {
+        border-color: #4b4128;
+        background: #252218;
+      }
+
+      [data-theme="dark"] .callout--tip .callout__content strong {
+        color: #e8d49b;
+      }
+
+      [data-theme="dark"] .compare-item {
+        border-color: #3b332b;
+      }
+
+      [data-theme="dark"] .task-card:hover {
+        border-color: #7a3b2c;
+        box-shadow: 0 12px 28px -24px rgba(0, 0, 0, 0.9);
+      }
+
+      [data-theme="dark"] .closing-card .button--primary {
+        background: #c8371e;
+        color: #fff;
+      }
+
+      [data-theme="dark"] .closing-card .button--primary:hover {
+        background: #ad2c16;
+      }
+
       @media (max-width: 1100px) {
         .hero h1 {
           font-size: clamp(2.8rem, 5.8vw, 4.7rem);
@@ -2334,6 +3144,132 @@
         }
       }
 
+      /* ============================================================
+       13. Enhancement responsive rules
+       ============================================================ */
+      @media (max-width: 1100px) {
+        .quick-tasks__inner {
+          grid-template-columns: 1fr;
+        }
+
+        .quick-tasks__grid {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 1020px) {
+        .has-js .menu-toggle {
+          display: inline-flex;
+        }
+
+        .has-js .mobile-toc {
+          display: none;
+        }
+
+        .has-js .sidebar {
+          position: fixed;
+          z-index: 200;
+          inset: 0 auto 0 0;
+          display: block;
+          width: min(86vw, 360px);
+          height: 100vh;
+          height: 100dvh;
+          max-height: none;
+          padding: 1.05rem 1rem 1.6rem;
+          overflow-y: auto;
+          border-right: 1px solid var(--line);
+          background: var(--paper);
+          box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+          visibility: hidden;
+          transform: translateX(-105%);
+          transition:
+            transform 0.24s ease,
+            visibility 0.24s ease;
+        }
+
+        .has-js .sidebar.is-open {
+          visibility: visible;
+          transform: none;
+        }
+
+        .has-js .sidebar__close {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 1.9rem;
+          height: 1.9rem;
+          flex: 0 0 auto;
+          padding: 0;
+          border: 1px solid var(--line);
+          border-radius: 6px;
+          background: transparent;
+          color: var(--muted);
+          font-family: var(--font-mono);
+          font-size: 1rem;
+          line-height: 1;
+          cursor: pointer;
+        }
+
+        .has-js .sidebar__close:hover {
+          border-color: var(--line-strong);
+          background: var(--surface);
+          color: var(--ink);
+        }
+
+        .has-js .sidebar-backdrop {
+          position: fixed;
+          z-index: 190;
+          inset: 0;
+          display: block;
+          background: rgba(18, 14, 11, 0.52);
+          opacity: 0;
+          visibility: hidden;
+          transition:
+            opacity 0.24s ease,
+            visibility 0.24s ease;
+        }
+
+        .has-js .sidebar-backdrop.is-open {
+          opacity: 1;
+          visibility: visible;
+        }
+
+        .has-js body.nav-open {
+          overflow: hidden;
+        }
+      }
+
+      @media (max-width: 900px) {
+        .header-actions {
+          margin-left: auto;
+        }
+
+        .header-cta {
+          margin-left: 0;
+        }
+      }
+
+      @media (max-width: 760px) {
+        .quick-tasks__grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 560px) {
+        .quick-tasks__grid {
+          grid-template-columns: 1fr;
+        }
+
+        .task-card small {
+          font-size: 0.66rem;
+        }
+
+        .header-inner {
+          gap: 0.85rem;
+        }
+      }
+
+
       @media (prefers-reduced-motion: reduce) {
         html {
           scroll-behavior: auto;
@@ -2349,10 +3285,28 @@
       }
 
       @media print {
+        [data-theme="dark"] {
+          --paper: #fff;
+          --paper-deep: #f6f6f6;
+          --surface: #fff;
+          --surface-soft: #fafafa;
+          --ink: #111;
+          --ink-soft: #222;
+          --muted: #444;
+          --muted-soft: #555;
+          --line: #ccc;
+          --line-strong: #bbb;
+          --git-ink: #a3301d;
+          --git-deep: #832d1d;
+          --git-wash: #fff6f4;
+          --git-soft: #fff1ec;
+        }
+
         body {
           background: #fff;
         }
 
+        .quick-tasks,
         .site-header,
         .sidebar,
         .mobile-toc,
@@ -2361,8 +3315,24 @@
         .hero__note,
         .closing-card,
         .site-footer,
-        .skip-link {
+        .skip-link,
+        .theme-toggle,
+        .menu-toggle,
+        .copy-btn,
+        .sidebar-backdrop {
           display: none !important;
+        }
+
+        [data-theme="dark"] .callout--danger {
+          border-color: #bbb;
+          background: #fff;
+        }
+
+        [data-theme="dark"] .callout--danger .callout__content strong,
+        [data-theme="dark"] .callout--danger .callout__content p,
+        [data-theme="dark"] .callout--info .callout__content strong,
+        [data-theme="dark"] .callout--tip .callout__content strong {
+          color: #111;
         }
 
         .hero {
@@ -2481,22 +3451,85 @@
           <a href="#guide">How to read</a>
           <a href="#configuration">Configuration</a>
           <a href="#branching">Branching</a>
+          <a href="#merging">Merging</a>
         </nav>
 
-        <a class="header-cta" href="#git-init">
-          Start with init
-          <svg
-            viewBox="0 0 16 16"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.8"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
+        <div class="header-actions">
+          <button
+            class="icon-button menu-toggle"
+            id="toc-toggle"
+            type="button"
+            aria-label="Open command menu"
+            title="Open command menu"
+            aria-expanded="false"
+            aria-controls="sidebar"
           >
-            <path d="M3 8h10M9 4l4 4-4 4"></path>
-          </svg>
-        </a>
+            <svg
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path d="M2.5 4.5h11M2.5 8h11M2.5 11.5h11"></path>
+            </svg>
+          </button>
+
+          <button
+            class="icon-button theme-toggle"
+            id="theme-toggle"
+            type="button"
+            aria-label="Switch to dark theme"
+            title="Switch to dark theme"
+          >
+            <svg
+              class="theme-toggle__moon"
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path d="M13.4 9.7A5.6 5.6 0 0 1 6.3 2.6a5.7 5.7 0 1 0 7.1 7.1Z"></path>
+            </svg>
+            <svg
+              class="theme-toggle__sun"
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <circle cx="8" cy="8" r="3"></circle>
+              <path
+                d="M8 1.2v1.4M8 13.4v1.4M1.2 8h1.4M13.4 8h1.4M3.2 3.2l1 1M11.8 11.8l1 1M12.8 3.2l-1 1M4.2 11.8l-1 1"
+              ></path>
+            </svg>
+          </button>
+
+          <a class="header-cta" href="#git-init">
+            Start with init
+            <svg
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M3 8h10M9 4l4 4-4 4"></path>
+            </svg>
+          </a>
+        </div>
       </div>
     </header>
 
@@ -2509,18 +3542,18 @@
               Git commands, <span class="accent">without the guesswork.</span>
             </h1>
             <p class="hero__lede">
-              A clear reference for building repositories, staging changes, and
-              managing branches. Every command and flag is explained alongside
-              the effect it actually has.
+              A clear reference for building repositories, staging changes,
+              managing branches, and merging them safely. Every command and flag
+              is explained alongside the effect it actually has.
             </p>
 
             <div class="hero__stats" role="group" aria-label="Guide summary">
               <div class="hero__stat">
-                <strong>34</strong>
+                <strong>40</strong>
                 <span>commands</span>
               </div>
               <div class="hero__stat">
-                <strong>09</strong>
+                <strong>10</strong>
                 <span>sections</span>
               </div>
               <div class="hero__stat">
@@ -2544,8 +3577,8 @@
                   <path d="M3 8h10M9 4l4 4-4 4"></path>
                 </svg>
               </a>
-              <a class="button button--secondary" href="#branching"
-                >Jump to branching</a
+              <a class="button button--secondary" href="#merging"
+                >Jump to merging</a
               >
             </div>
 
@@ -2592,9 +3625,220 @@ Changes to be committed:</span>
         </div>
       </section>
 
+      <section class="quick-tasks" aria-labelledby="quick-tasks-title">
+        <div class="page-width quick-tasks__inner">
+          <div>
+            <p class="eyebrow">Quick solutions</p>
+            <h2 id="quick-tasks-title">Common tasks</h2>
+            <p class="quick-tasks__lede">
+              Start with the problem, not the command. Each link jumps straight
+              to the card that solves it.
+            </p>
+          </div>
+
+          <ul class="quick-tasks__grid">
+            <li>
+              <a class="task-card" href="#git-init-project">
+                <span class="task-card__icon" aria-hidden="true">
+                  <svg
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    focusable="false"
+                  >
+                    <path d="M1.8 4.4h4l1.1 1.4h7.3v7.4H1.8z"></path>
+                    <path d="M8 7.4v4M6 9.4h4"></path>
+                  </svg>
+                </span>
+                <span class="task-card__text">
+                  <strong>Start a new project</strong>
+                  <small>Create the folder, the repository, and the history.</small>
+                </span>
+                <span class="task-card__arrow" aria-hidden="true">→</span>
+              </a>
+            </li>
+            <li>
+              <a class="task-card" href="#git-commit">
+                <span class="task-card__icon" aria-hidden="true">
+                  <svg
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    focusable="false"
+                  >
+                    <path d="M3 8.4l3.1 3.1L13 4.7"></path>
+                  </svg>
+                </span>
+                <span class="task-card__text">
+                  <strong>Save my changes</strong>
+                  <small>Stage the snapshot, then commit it with a message.</small>
+                </span>
+                <span class="task-card__arrow" aria-hidden="true">→</span>
+              </a>
+            </li>
+            <li>
+              <a class="task-card" href="#git-restore-source">
+                <span class="task-card__icon" aria-hidden="true">
+                  <svg
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    focusable="false"
+                  >
+                    <path d="M5.6 4.2 2.6 7.2l3 3"></path>
+                    <path d="M2.9 7.2h6.4a3.6 3.6 0 0 1 0 7.2H7.5"></path>
+                  </svg>
+                </span>
+                <span class="task-card__text">
+                  <strong>Undo a mistake</strong>
+                  <small>Bring back a file from an earlier commit.</small>
+                </span>
+                <span class="task-card__arrow" aria-hidden="true">→</span>
+              </a>
+            </li>
+            <li>
+              <a class="task-card" href="#git-add">
+                <span class="task-card__icon" aria-hidden="true">
+                  <svg
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    focusable="false"
+                  >
+                    <path d="M8 2.2 2.4 5 8 7.8 13.6 5z"></path>
+                    <path d="M2.4 8 8 10.8 13.6 8"></path>
+                    <path d="M2.4 11 8 13.8 13.6 11"></path>
+                  </svg>
+                </span>
+                <span class="task-card__text">
+                  <strong>Stage a change</strong>
+                  <small>Choose exactly what the next commit will include.</small>
+                </span>
+                <span class="task-card__arrow" aria-hidden="true">→</span>
+              </a>
+            </li>
+            <li>
+              <a class="task-card" href="#git-merge-true">
+                <span class="task-card__icon" aria-hidden="true">
+                  <svg
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    focusable="false"
+                  >
+                    <path d="M3.4 3v4.1a3 3 0 0 0 3 3h3.8"></path>
+                    <path d="M8.4 7.3l2.8 2.8-2.8 2.8"></path>
+                    <path d="M12.6 3v1.6"></path>
+                  </svg>
+                </span>
+                <span class="task-card__text">
+                  <strong>Resolve a conflict</strong>
+                  <small>Read the markers and choose ours, theirs, or both.</small>
+                </span>
+                <span class="task-card__arrow" aria-hidden="true">→</span>
+              </a>
+            </li>
+            <li>
+              <a class="task-card" href="#git-rm-vs-clean">
+                <span class="task-card__icon" aria-hidden="true">
+                  <svg
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    focusable="false"
+                  >
+                    <path d="M2.8 4.5h10.4"></path>
+                    <path d="M6.4 4.5V2.9h3.2v1.6"></path>
+                    <path d="M4.4 4.5l.7 8.6h5.8l.7-8.6"></path>
+                  </svg>
+                </span>
+                <span class="task-card__text">
+                  <strong>Delete files safely</strong>
+                  <small>Know when a removal can be undone and when it cannot.</small>
+                </span>
+                <span class="task-card__arrow" aria-hidden="true">→</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </section>
+
       <div class="page-width docs-layout" id="commands">
-        <aside class="sidebar" aria-label="On this page">
-          <p class="sidebar__label">On this page</p>
+        <div
+          class="sidebar-backdrop"
+          id="sidebar-backdrop"
+          aria-hidden="true"
+        ></div>
+
+        <aside class="sidebar" id="sidebar" aria-label="On this page">
+          <div class="sidebar__head">
+            <p class="sidebar__label">On this page</p>
+            <button
+              class="sidebar__close"
+              id="sidebar-close"
+              type="button"
+              aria-label="Close command menu"
+            >
+              ×
+            </button>
+          </div>
+
+          <div class="sidebar__search">
+            <label class="sr-only" for="command-search"
+              >Search Git commands</label
+            >
+            <div class="sidebar__search-box">
+              <svg
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.6"
+                stroke-linecap="round"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <circle cx="7" cy="7" r="4.1"></circle>
+                <path d="m10.2 10.2 3 3"></path>
+              </svg>
+              <input
+                id="command-search"
+                type="search"
+                placeholder="Search commands…"
+                autocomplete="off"
+                spellcheck="false"
+                aria-describedby="search-status"
+              >
+              <button
+                class="sidebar__search-clear"
+                id="search-clear"
+                type="button"
+                aria-label="Clear command search"
+                hidden
+              >
+                ×
+              </button>
+            </div>
+            <p class="sidebar__search-status" id="search-status" role="status" hidden></p>
+          </div>
+
           <nav aria-label="Guide sections">
             <ol class="sidebar__list">
               <li>
@@ -2635,7 +3879,7 @@ Changes to be committed:</span>
                 <a class="sidebar__link" href="#file-operations">
                   <span class="sidebar__num">05</span>
                   <span class="sidebar__name">File operations</span>
-                  <span class="sidebar__count">3</span>
+                  <span class="sidebar__count">4</span>
                 </a>
               </li>
               <li>
@@ -2666,6 +3910,13 @@ Changes to be committed:</span>
                   <span class="sidebar__count">4</span>
                 </a>
               </li>
+              <li>
+                <a class="sidebar__link" href="#merging">
+                  <span class="sidebar__num">10</span>
+                  <span class="sidebar__name">Merging</span>
+                  <span class="sidebar__count">5</span>
+                </a>
+              </li>
             </ol>
           </nav>
 
@@ -2684,7 +3935,7 @@ Changes to be committed:</span>
           <details class="mobile-toc">
             <summary>
               <span>On this page</span>
-              <span class="mobile-toc__hint">9 sections</span>
+              <span class="mobile-toc__hint">10 sections</span>
               <svg
                 class="mobile-toc__chevron"
                 viewBox="0 0 16 16"
@@ -2750,6 +4001,11 @@ Changes to be committed:</span>
                 <li>
                   <a href="#branching"
                     ><span class="mobile-toc__num">09</span>Branching</a
+                  >
+                </li>
+                <li>
+                  <a href="#merging"
+                    ><span class="mobile-toc__num">10</span>Merging</a
                   >
                 </li>
               </ol>
@@ -4567,13 +5823,14 @@ alias.cm=commit -m</span></code></pre>
               <header class="section-heading">
                 <span class="section-number" aria-hidden="true">05</span>
                 <div>
-                  <p class="eyebrow">Outside Git</p>
+                  <p class="eyebrow">Files on disk</p>
                   <h2 id="file-operations-title">File operations</h2>
                   <p class="section-intro">
-                    These are shell commands, not Git commands. They create and
-                    remove files on disk; Git only notices the result the next
-                    time you inspect its status. The exact syntax here targets
-                    macOS, Linux, or Git Bash.
+                    These commands create and remove files on disk. The last
+                    card compares shell <code>rm</code> with
+                    <code>git rm</code> and <code>git clean</code>, because all
+                    three delete files but leave Git in different states. The
+                    exact syntax here targets macOS, Linux, or Git Bash.
                   </p>
                 </div>
               </header>
@@ -4850,6 +6107,255 @@ alias.cm=commit -m</span></code></pre>
                           of files is painful; untracked work is irrecoverable.
                           If you only need to remove ignored build output, use a
                           targeted path instead.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </article>
+
+                <article class="command-card" id="git-rm-vs-clean">
+                  <header class="command-card__header">
+                    <div class="command-card__heading">
+                      <div class="badge-row">
+                        <span class="badge badge--git">Git</span>
+                        <span class="badge badge--shell">Shell</span>
+                        <span class="badge badge--info">Comparison</span>
+                      </div>
+                      <h3>Shell rm vs git rm vs git clean</h3>
+                    </div>
+                    <span
+                      class="command-card__number"
+                      aria-hidden="true"
+                    ></span>
+                  </header>
+
+                  <div class="terminal">
+                    <div class="terminal__bar" aria-hidden="true">
+                      <span class="terminal__dots"><i></i><i></i><i></i></span>
+                      <span class="terminal__label">shell rm</span>
+                      <span class="terminal__lang">bash</span>
+                    </div>
+                    <pre
+                      tabindex="0"
+                      aria-label="Terminal commands: shell rm deletes a tracked file and leaves an unstaged deletion"
+                    ><code><span class="tok-prompt">$</span> <span class="tok-command">rm</span> <span class="tok-arg">app.js</span>
+<span class="tok-prompt">$</span> <span class="tok-command">git</span> <span class="tok-sub">status</span> <span class="tok-flag">--short</span>
+<span class="tok-red"> D app.js</span>
+<span class="tok-output">?? draft.md</span></code></pre>
+                  </div>
+
+                  <div class="terminal">
+                    <div class="terminal__bar" aria-hidden="true">
+                      <span class="terminal__dots"><i></i><i></i><i></i></span>
+                      <span class="terminal__label">git rm</span>
+                      <span class="terminal__lang">bash</span>
+                    </div>
+                    <pre
+                      tabindex="0"
+                      aria-label="Terminal commands: git rm deletes a tracked file and stages the deletion"
+                    ><code><span class="tok-comment"># restore the file</span>
+<span class="tok-prompt">$</span> <span class="tok-command">git</span> <span class="tok-sub">restore</span> <span class="tok-arg">app.js</span>
+<span class="tok-prompt">$</span> <span class="tok-command">git</span> <span class="tok-sub">rm</span> <span class="tok-arg">app.js</span>
+<span class="tok-output">rm 'app.js'</span>
+<span class="tok-prompt">$</span> <span class="tok-command">git</span> <span class="tok-sub">status</span> <span class="tok-flag">--short</span>
+<span class="tok-green">D  app.js</span>
+<span class="tok-output">?? draft.md</span></code></pre>
+                  </div>
+
+                  <div class="terminal">
+                    <div class="terminal__bar" aria-hidden="true">
+                      <span class="terminal__dots"><i></i><i></i><i></i></span>
+                      <span class="terminal__label">git clean</span>
+                      <span class="terminal__lang">bash</span>
+                    </div>
+                    <pre
+                      tabindex="0"
+                      aria-label="Terminal commands: git rm refuses an untracked file while git clean previews and removes it"
+                    ><code><span class="tok-prompt">$</span> <span class="tok-command">git</span> <span class="tok-sub">rm</span> <span class="tok-arg">draft.md</span>
+<span class="tok-red tok-wrap">fatal: pathspec 'draft.md' did not match any files</span>
+<span class="tok-prompt">$</span> <span class="tok-command">git</span> <span class="tok-sub">clean</span> <span class="tok-flag">-n</span>
+<span class="tok-output">Would remove draft.md</span>
+<span class="tok-prompt">$</span> <span class="tok-command">git</span> <span class="tok-sub">clean</span> <span class="tok-flag">-f</span>
+<span class="tok-output">Removing draft.md</span></code></pre>
+                  </div>
+
+                  <div class="command-card__body">
+                    <p>
+                      All three commands remove files from disk, but they leave
+                      Git in different states. <code>rm</code> is the shell
+                      deleting a path: Git notices only when that path was
+                      tracked, and the deletion stays unstaged. <code>git rm</code>
+                      is Git deleting a tracked path and staging the removal in
+                      one step. <code>git clean</code> is Git deleting untracked
+                      paths—files it was never asked to track.
+                    </p>
+                    <p>
+                      In this example <code>app.js</code> is tracked and
+                      <code>draft.md</code> is untracked. After
+                      <code>rm app.js</code>, <code>git status --short</code>
+                      shows <code>&nbsp;D app.js</code>—the blank first column
+                      means the deletion is <strong>not staged</strong>—while
+                      <code>?? draft.md</code> remains. <code>git rm</code> turns
+                      that into <code>D&nbsp;&nbsp;app.js</code>: the
+                      <code>D</code> in the first column means the removal is
+                      <strong>staged</strong> and ready to commit.
+                      <code>git rm draft.md</code> fails with
+                      <code>fatal: pathspec</code> because Git has no tracked
+                      version to remove, yet <code>git clean</code> removes the
+                      file precisely because it is untracked.
+                    </p>
+
+                    <div class="compare-strip">
+                      <div class="compare-item">
+                        <code>rm</code>
+                        <span
+                          >Works on any path. A tracked file becomes an
+                          <strong>unstaged</strong> deletion; an untracked file
+                          simply disappears.</span
+                        >
+                      </div>
+                      <div class="compare-item">
+                        <code>git rm</code>
+                        <span
+                          >Works on <strong>tracked</strong> paths only. Deletes
+                          the file and stages the removal together.</span
+                        >
+                      </div>
+                      <div class="compare-item">
+                        <code>git clean</code>
+                        <span
+                          >Works on <strong>untracked</strong> paths only.
+                          Tracked files and staged changes are safe.</span
+                        >
+                      </div>
+                      <div class="compare-item">
+                        <code>restore?</code>
+                        <span
+                          ><strong>Tracked files:</strong> <code>rm</code> and
+                          <code>git rm</code> leave the last committed copy in
+                          Git, so the file can be restored.
+                          <strong>Untracked files:</strong>
+                          <code>git clean</code> removes a file Git never stored,
+                          so there is no copy to restore.</span
+                        >
+                      </div>
+                    </div>
+
+                    <p>
+                      <code>git clean</code> never touches tracked files, even
+                      ones you deleted from disk. If <code>git status</code>
+                      already shows a deletion, stage it with <code>git rm</code>
+                      or <code>git add -u</code>; cleaning will not record it.
+                    </p>
+
+                    <div class="flag-panel">
+                      <h4 class="flag-panel__title">
+                        <svg
+                          viewBox="0 0 16 16"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="1.6"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          aria-hidden="true"
+                        >
+                          <path d="M4 14V2m0 0 7 0-1.5 3L11 9H4"></path>
+                        </svg>
+                        Key options
+                      </h4>
+                      <dl class="flag-list">
+                        <div class="flag">
+                          <dt><code>git rm --cached</code></dt>
+                          <dd>
+                            <strong>Untrack without deleting.</strong> Removes
+                            the path from the index and leaves the file on disk,
+                            so it becomes untracked. Useful when a file was
+                            committed by mistake.
+                          </dd>
+                        </div>
+                        <div class="flag">
+                          <dt><code>git rm -f</code></dt>
+                          <dd>
+                            <strong>Force the removal.</strong> Git refuses to
+                            remove a tracked file whose content differs from the
+                            last commit unless you force it.
+                          </dd>
+                        </div>
+                        <div class="flag">
+                          <dt><code>git rm -r</code></dt>
+                          <dd>
+                            <strong>Recurse into a directory.</strong> Stages the
+                            deletion of every tracked file inside it.
+                          </dd>
+                        </div>
+                        <div class="flag">
+                          <dt><code>git clean -n</code></dt>
+                          <dd>
+                            <strong>Dry run.</strong> Prints one
+                            <code>Would remove …</code> line per untracked path
+                            and deletes nothing. Run this first.
+                          </dd>
+                        </div>
+                        <div class="flag">
+                          <dt><code>git clean -f</code></dt>
+                          <dd>
+                            <strong>Required force.</strong> Turns the preview
+                            into a real, permanent deletion. A bare
+                            <code>git clean</code> refuses to run by default.
+                          </dd>
+                        </div>
+                        <div class="flag">
+                          <dt><code>git clean -d</code></dt>
+                          <dd>
+                            <strong>Include untracked directories.</strong>
+                            Without it, <code>clean</code> skips directories and
+                            their contents.
+                          </dd>
+                        </div>
+                        <div class="flag">
+                          <dt><code>git clean -x</code></dt>
+                          <dd>
+                            <strong>Include ignored files.</strong> Also removes
+                            build output, dependency caches, and local secrets
+                            such as <code>.env</code>. Preview with
+                            <code>-nx</code> first.
+                          </dd>
+                        </div>
+                      </dl>
+                    </div>
+
+                    <div class="callout callout--tip">
+                      <span class="callout__icon" aria-hidden="true">↳</span>
+                      <div class="callout__content">
+                        <strong>Where each deleted file still exists.</strong>
+                        <p>
+                          <strong><code>rm app.js</code>:</strong> the file is
+                          gone from disk, but the deletion is unstaged, so the
+                          last commit still has it. <code>git restore app.js</code>
+                          brings it back.
+                          <strong><code>git rm app.js</code>:</strong> the
+                          deletion is staged, but the last commit still has it.
+                          Run <code>git restore --staged app.js</code> to
+                          unstage, then <code>git restore app.js</code> to bring
+                          it back. <strong><code>git clean -f</code>:</strong>
+                          the file was never tracked, so no commit contains it;
+                          there is no copy, and Git cannot undo the deletion.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div class="callout callout--danger">
+                      <span class="callout__icon" aria-hidden="true">!</span>
+                      <div class="callout__content">
+                        <strong>Clean is permanent for untracked work.</strong>
+                        <p>
+                          <code>git clean</code> has no commit, reflog entry, or
+                          recycle bin to fall back on. Preview with
+                          <code>git clean -nd</code>, check the list, then add
+                          <code>-f</code>. Add <code>-d</code> for directories
+                          and <code>-x</code> only when ignored build output
+                          should go too. Plain <code>rm</code> on an untracked
+                          file is just as permanent.
                         </p>
                       </div>
                     </div>
@@ -5671,11 +7177,12 @@ Removing notes.tmp</span></code></pre>
                       that you can review, stage, and commit.
                     </p>
                     <p>
-                      Use it to recover one file from history without resetting
-                      the branch. It is not a checkout of the whole commit, and
-                      it does not move <code>HEAD</code>. The path argument is
-                      mandatory: <code>git restore --source=HEAD~1</code> alone
-                      has nothing to restore and exits with an error.
+                      Use it to undo or recover one file from history without
+                      resetting the branch. It is not a checkout of the whole
+                      commit, and it does not move <code>HEAD</code>. The path
+                      argument is mandatory:
+                      <code>git restore --source=HEAD~1</code> alone has nothing
+                      to restore and exits with an error.
                     </p>
 
                     <div class="flag-panel">
@@ -5859,26 +7366,74 @@ Removing notes.tmp</span></code></pre>
                   <div class="terminal">
                     <div class="terminal__bar" aria-hidden="true">
                       <span class="terminal__dots"><i></i><i></i><i></i></span>
-                      <span class="terminal__label">terminal</span>
+                      <span class="terminal__label">on the branch itself</span>
                       <span class="terminal__lang">bash</span>
                     </div>
                     <pre
                       tabindex="0"
-                      aria-label="Terminal command: git branch -m new name"
-                    ><code><span class="tok-prompt">$</span> <span class="tok-command">git</span> <span class="tok-sub">branch</span> <span class="tok-flag">-m</span> <span class="tok-arg">new-name</span>
+                      aria-label="Terminal commands: rename the current branch with one name"
+                    ><code><span class="tok-prompt">$</span> <span class="tok-command">git</span> <span class="tok-sub">branch</span> <span class="tok-flag">--show-current</span>
+<span class="tok-output">b2</span>
+<span class="tok-prompt">$</span> <span class="tok-command">git</span> <span class="tok-sub">branch</span> <span class="tok-flag">-m</span> <span class="tok-arg">new-name</span>
+<span class="tok-prompt">$</span> <span class="tok-command">git</span> <span class="tok-sub">branch</span> <span class="tok-flag">--show-current</span>
+<span class="tok-output">new-name</span></code></pre>
+                  </div>
+
+                  <div class="terminal">
+                    <div class="terminal__bar" aria-hidden="true">
+                      <span class="terminal__dots"><i></i><i></i><i></i></span>
+                      <span class="terminal__label">from another branch</span>
+                      <span class="terminal__lang">bash</span>
+                    </div>
+                    <pre
+                      tabindex="0"
+                      aria-label="Terminal commands: rename b2 from main with two names"
+                    ><code><span class="tok-prompt">$</span> <span class="tok-command">git</span> <span class="tok-sub">switch</span> <span class="tok-arg">main</span>
+<span class="tok-output">Switched to branch 'main'</span>
+<span class="tok-prompt">$</span> <span class="tok-command">git</span> <span class="tok-sub">branch</span> <span class="tok-flag">-m</span> <span class="tok-arg">b2</span> <span class="tok-arg">"branch2"</span>
 <span class="tok-prompt">$</span> <span class="tok-command">git</span> <span class="tok-sub">branch</span>
-<span class="tok-output"><span class="tok-green">* new-name</span>
-  feature/login</span></code></pre>
+<span class="tok-output">  branch2
+<span class="tok-green">* main</span></span></code></pre>
                   </div>
 
                   <div class="command-card__body">
                     <p>
-                      Renames a branch without changing its commits. With one
-                      name, it renames the current branch; with two, it renames
-                      the first to the second. The reflog and branch
-                      configuration move with it, and the old name stops
+                      The <strong>one-name</strong> form renames the branch you
+                      are on: <code>git branch -m new-name</code>. Run it while
+                      <code>b2</code> is checked out and <code>b2</code> becomes
+                      <code>new-name</code>. The <strong>two-name</strong> form
+                      renames a different branch:
+                      <code>git branch -m b2 branch2</code>. Run from
+                      <code>main</code>, the first name is the branch to rename,
+                      the second is its new name, and you stay on
+                      <code>main</code>.
+                    </p>
+                    <p>
+                      Quotes are shell syntax, not part of the branch name.
+                      <code>git branch -m b2 "branch2"</code> is the same as
+                      <code>git branch -m b2 branch2</code>. The reflog and
+                      branch configuration move with it, and the old name stops
                       existing locally.
                     </p>
+
+                    <div class="compare-strip">
+                      <div class="compare-item">
+                        <code>one name</code>
+                        <span
+                          >Renames the branch you are currently on:
+                          <code>git branch -m new-name</code>.</span
+                        >
+                      </div>
+                      <div class="compare-item">
+                        <code>two names</code>
+                        <span
+                          >Renames the first branch to the second:
+                          <code>git branch -m b2 branch2</code>, even while on
+                          <code>main</code>.</span
+                        >
+                      </div>
+                    </div>
+
                     <p>
                       Renaming is local only. If the branch was already pushed,
                       the remote still has the old name; push the new name and
@@ -5886,6 +7441,21 @@ Removing notes.tmp</span></code></pre>
                       a single token, and it must not collide with an existing
                       branch.
                     </p>
+
+                    <div class="callout callout--info">
+                      <span class="callout__icon" aria-hidden="true">i</span>
+                      <div class="callout__content">
+                        <strong>Spaces are not allowed in branch names.</strong>
+                        <p>
+                          Quotes group an argument for the shell; they do not
+                          make a space valid. <code>git branch -m "new name"</code>
+                          fails with
+                          <code>fatal: 'new name' is not a valid branch name</code>.
+                          Write <code>new-name</code>, <code>new_name</code>, or
+                          <code>feature/new-name</code> instead.
+                        </p>
+                      </div>
+                    </div>
 
                     <div class="flag-panel">
                       <h4 class="flag-panel__title">
@@ -5906,18 +7476,21 @@ Removing notes.tmp</span></code></pre>
                         <div class="flag">
                           <dt><code>-m</code></dt>
                           <dd>
-                            <strong>Move/rename.</strong> Refuses to overwrite
-                            an existing branch name, which makes it the safer
-                            form. Use <code>-m old-name new-name</code> to
-                            rename a branch you are not on.
+                            <strong>Move/rename.</strong> With one name it
+                            renames the current branch; with two it renames the
+                            first branch to the second without switching to it.
+                            Refuses to overwrite an existing name, which makes it
+                            safer than <code>-M</code>.
                           </dd>
                         </div>
                         <div class="flag">
                           <dt><code>new-name</code></dt>
                           <dd>
-                            <strong>The new branch name.</strong> One token with
-                            no spaces; a slash is allowed for grouping, as in
-                            <code>feature/new-name</code>.
+                            <strong>The new name.</strong> Always the last
+                            argument. One token with no spaces; a slash is
+                            allowed for grouping, as in
+                            <code>feature/new-name</code>. Quotes around a valid
+                            name are optional.
                           </dd>
                         </div>
                         <div class="flag">
@@ -6141,6 +7714,876 @@ Removing notes.tmp</span></code></pre>
                 </article>
               </div>
             </section>
+
+            <section
+              class="doc-section"
+              id="merging"
+              aria-labelledby="merging-title"
+            >
+              <header class="section-heading">
+                <span class="section-number" aria-hidden="true">10</span>
+                <div>
+                  <p class="eyebrow">Converging histories</p>
+                  <h2 id="merging-title">Merging (Git Merge)</h2>
+                  <p class="section-intro">
+                    Merging brings the commits from one branch into another. The
+                    examples below use three branches—<code>main</code>,
+                    <code>letter</code>, and <code>numbers</code>—that share a
+                    single file, <code>code.txt</code>. Git fast-forwards the
+                    first merge, then stops on a conflict when both branches
+                    change the same lines. You will see how to resolve it by
+                    keeping the current version, the incoming version, or both.
+                    Another example shows a merge deleting a file and its
+                    emptied folder.
+                  </p>
+                </div>
+              </header>
+
+              <div class="command-stack">
+                <article class="command-card" id="git-merge">
+                  <header class="command-card__header">
+                    <div class="command-card__heading">
+                      <div class="badge-row">
+                        <span class="badge badge--git">Git</span>
+                        <span class="badge badge--neutral">Safe</span>
+                      </div>
+                      <h3>Merge a branch into the current branch</h3>
+                    </div>
+                    <span
+                      class="command-card__number"
+                      aria-hidden="true"
+                    ></span>
+                  </header>
+
+                  <div class="terminal">
+                    <div class="terminal__bar" aria-hidden="true">
+                      <span class="terminal__dots"><i></i><i></i><i></i></span>
+                      <span class="terminal__label">terminal</span>
+                      <span class="terminal__lang">bash</span>
+                    </div>
+                    <pre
+                      tabindex="0"
+                      aria-label="Terminal command: git merge numbers while on main, then show code.txt"
+                    ><code><span class="tok-prompt">$</span> <span class="tok-command">git</span> <span class="tok-sub">branch</span>
+<span class="tok-output"><span class="tok-green">* main</span>
+  letter
+  numbers</span>
+<span class="tok-prompt">$</span> <span class="tok-command">cat</span> <span class="tok-arg">code.txt</span>
+<span class="tok-comment"># main's code.txt is empty</span>
+<span class="tok-prompt">$</span> <span class="tok-command">git</span> <span class="tok-sub">merge</span> <span class="tok-arg">numbers</span>
+<span class="tok-output">Updating 3f9a1c2..7b2e4d8</span>
+<span class="tok-output">Fast-forward</span>
+<span class="tok-output"> code.txt | 1 +</span>
+<span class="tok-green"> 1 file changed, 1 insertion(+)</span>
+<span class="tok-prompt">$</span> <span class="tok-command">cat</span> <span class="tok-arg">code.txt</span>
+<span class="tok-cyan">1 2 3</span></code></pre>
+                  </div>
+
+                  <div class="command-card__body">
+                    <p>
+                      Combines the specified target branch's history into the
+                      current active branch. The branch you are on is the
+                      destination; the branch named in the command is the
+                      source. You are on <code>main</code>, so
+                      <code>git merge numbers</code> brings
+                      <code>numbers</code> into <code>main</code>—it does not
+                      check out <code>numbers</code>.
+                    </p>
+                    <p>
+                      All three branches started from the same commit, and
+                      <code>letter</code> and <code>numbers</code> each edited
+                      the same file differently. That is the setup for the rest
+                      of this section:
+                    </p>
+
+                    <div class="compare-strip">
+                      <div class="compare-item">
+                        <code>main</code>
+                        <span>Has an empty <code>code.txt</code>.</span>
+                      </div>
+                      <div class="compare-item">
+                        <code>letter</code>
+                        <span>Has <code>a b c</code> in <code>code.txt</code>.</span>
+                      </div>
+                      <div class="compare-item">
+                        <code>numbers</code>
+                        <span>Has <code>1 2 3</code> in <code>code.txt</code>.</span>
+                      </div>
+                      <div class="compare-item">
+                        <code>code.txt</code>
+                        <span
+                          >The shared file, so <code>letter</code> and
+                          <code>numbers</code> touch the same lines.</span
+                        >
+                      </div>
+                    </div>
+
+                    <p>
+                      Git finds the common ancestor of the two branch tips and
+                      decides how to combine them. A branch that has not moved
+                      since the split can be fast-forwarded; divergent branches
+                      need a merge commit; edits to the same lines stop the
+                      merge for a conflict. The next cards walk through each
+                      outcome with these branches.
+                    </p>
+
+                    <div class="flag-panel">
+                      <h4 class="flag-panel__title">
+                        <svg
+                          viewBox="0 0 16 16"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="1.6"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          aria-hidden="true"
+                        >
+                          <path d="M4 14V2m0 0 7 0-1.5 3L11 9H4"></path>
+                        </svg>
+                        Flags &amp; arguments
+                      </h4>
+                      <dl class="flag-list">
+                        <div class="flag">
+                          <dt><code>numbers</code></dt>
+                          <dd>
+                            <strong>The source to merge.</strong> A branch, tag,
+                            or commit that will be combined into
+                            <code>HEAD</code>. Here it brings the
+                            <code>1 2 3</code> version of <code>code.txt</code>
+                            into <code>main</code>. Branch names are single
+                            tokens; spaces are not allowed.
+                          </dd>
+                        </div>
+                      </dl>
+                    </div>
+
+                    <div class="callout callout--info">
+                      <span class="callout__icon" aria-hidden="true">i</span>
+                      <div class="callout__content">
+                        <strong>Commit or stash before merging.</strong>
+                        <p>
+                          Git refuses a merge that would overwrite uncommitted
+                          changes. A clean working tree also makes conflicts and
+                          aborts much easier to reason about.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </article>
+
+                <article class="command-card" id="git-merge-fast-forward">
+                  <header class="command-card__header">
+                    <div class="command-card__heading">
+                      <div class="badge-row">
+                        <span class="badge badge--git">Git</span>
+                        <span class="badge badge--info">Fast-forward</span>
+                      </div>
+                      <h3>Fast-forward merge</h3>
+                    </div>
+                    <span
+                      class="command-card__number"
+                      aria-hidden="true"
+                    ></span>
+                  </header>
+
+                  <div class="terminal">
+                    <div class="terminal__bar" aria-hidden="true">
+                      <span class="terminal__dots"><i></i><i></i><i></i></span>
+                      <span class="terminal__label">terminal</span>
+                      <span class="terminal__lang">bash</span>
+                    </div>
+                    <pre
+                      tabindex="0"
+                      aria-label="Terminal output: the graph after merging numbers, and the contents of code.txt"
+                    ><code><span class="tok-prompt">$</span> <span class="tok-command">git</span> <span class="tok-sub">log</span> <span class="tok-flag">--oneline</span> <span class="tok-flag">--graph</span> <span class="tok-flag">--all</span>
+<span class="tok-output">* <span class="tok-warm">7b2e4d8</span> <span class="tok-green">(HEAD -&gt; main, numbers)</span> numbers: write 1 2 3
+| * <span class="tok-warm">4c8f0a1</span> <span class="tok-cyan">(letter)</span> letter: write a b c
+|/
+* <span class="tok-warm">3f9a1c2</span> initial commit: add empty code.txt</span>
+<span class="tok-prompt">$</span> <span class="tok-command">cat</span> <span class="tok-arg">code.txt</span>
+<span class="tok-cyan">1 2 3</span></code></pre>
+                  </div>
+
+                  <div class="command-card__body">
+                    <p>
+                      A fast-forward merge happens automatically when the current
+                      active branch has no new commits since you created the
+                      target branch. Here <code>main</code> stayed on the base
+                      commit while <code>numbers</code> advanced, so
+                      <code>numbers</code> is a direct descendant of
+                      <code>main</code>. There is nothing to reconcile: Git
+                      moves the <code>main</code> pointer forward to the
+                      <code>numbers</code> tip. Both names now point at
+                      <code>7b2e4d8</code>, <code>code.txt</code> contains
+                      <code>1 2 3</code>, no merge commit is created, and
+                      history stays linear.
+                    </p>
+                    <p>
+                      This is Git's default when a fast-forward is possible. If
+                      you want a merge commit even in this situation, add
+                      <code>--no-ff</code>; if you want Git to refuse anything
+                      except a fast-forward, add <code>--ff-only</code>.
+                    </p>
+
+                    <div class="flag-panel">
+                      <h4 class="flag-panel__title">
+                        <svg
+                          viewBox="0 0 16 16"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="1.6"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          aria-hidden="true"
+                        >
+                          <path d="M4 14V2m0 0 7 0-1.5 3L11 9H4"></path>
+                        </svg>
+                        Flags &amp; arguments
+                      </h4>
+                      <dl class="flag-list">
+                        <div class="flag">
+                          <dt><code>numbers</code></dt>
+                          <dd>
+                            <strong>The branch to advance to.</strong> It must
+                            contain the current branch tip in its history for a
+                            fast-forward to be possible. After the merge,
+                            <code>main</code> and <code>numbers</code> share the
+                            same commit.
+                          </dd>
+                        </div>
+                        <div class="flag">
+                          <dt><code>--no-ff</code></dt>
+                          <dd>
+                            <strong>Force a merge commit.</strong> Creates a
+                            dedicated commit with two parents even when the
+                            pointer could simply move forward, preserving a
+                            visible branch boundary in history.
+                          </dd>
+                        </div>
+                        <div class="flag">
+                          <dt><code>--ff-only</code></dt>
+                          <dd>
+                            <strong>Require a fast-forward.</strong> Aborts the
+                            merge with an error if the current branch has
+                            diverged, instead of creating a merge commit. Useful
+                            when linear history must be guaranteed.
+                          </dd>
+                        </div>
+                      </dl>
+                    </div>
+
+                    <div class="callout callout--tip">
+                      <span class="callout__icon" aria-hidden="true">↳</span>
+                      <div class="callout__content">
+                        <strong>One commit, two branch names.</strong>
+                        <p>
+                          A fast-forward creates no commit of its own, so there
+                          is no merge message to edit. After the merge,
+                          <code>main</code> and <code>numbers</code> both point
+                          at <code>7b2e4d8</code>, and <code>code.txt</code>
+                          contains <code>1 2 3</code>.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </article>
+
+                <article class="command-card" id="git-merge-deletions">
+                  <header class="command-card__header">
+                    <div class="command-card__heading">
+                      <div class="badge-row">
+                        <span class="badge badge--git">Git</span>
+                        <span class="badge badge--info">Deletions</span>
+                      </div>
+                      <h3>Merge file and folder deletions</h3>
+                    </div>
+                    <span
+                      class="command-card__number"
+                      aria-hidden="true"
+                    ></span>
+                  </header>
+
+                  <div class="terminal">
+                    <div class="terminal__bar" aria-hidden="true">
+                      <span class="terminal__dots"><i></i><i></i><i></i></span>
+                      <span class="terminal__label">remove on b2</span>
+                      <span class="terminal__lang">bash</span>
+                    </div>
+                    <pre
+                      tabindex="0"
+                      aria-label="Terminal commands: commit a file deletion on branch b2"
+                    ><code><span class="tok-prompt">$</span> <span class="tok-command">git</span> <span class="tok-sub">switch</span> <span class="tok-arg">b2</span>
+<span class="tok-output">Switched to branch 'b2'</span>
+<span class="tok-prompt">$</span> <span class="tok-command">git</span> <span class="tok-sub">rm</span> <span class="tok-arg">docs/notes.txt</span>
+<span class="tok-output">rm 'docs/notes.txt'</span>
+<span class="tok-prompt">$</span> <span class="tok-command">git</span> <span class="tok-sub">commit</span> <span class="tok-flag">-m</span> <span class="tok-string">"Remove notes"</span>
+<span class="tok-green">[b2 5e1c9a0] Remove notes</span>
+<span class="tok-output"> 1 file changed, 1 deletion(-)</span>
+<span class="tok-output"> delete mode 100644 docs/notes.txt</span></code></pre>
+                  </div>
+
+                  <div class="terminal">
+                    <div class="terminal__bar" aria-hidden="true">
+                      <span class="terminal__dots"><i></i><i></i><i></i></span>
+                      <span class="terminal__label">merge on main</span>
+                      <span class="terminal__lang">bash</span>
+                    </div>
+                    <pre
+                      tabindex="0"
+                      aria-label="Terminal commands: merge b2 into main and confirm the file is deleted"
+                    ><code><span class="tok-prompt">$</span> <span class="tok-command">git</span> <span class="tok-sub">switch</span> <span class="tok-arg">main</span>
+<span class="tok-output">Switched to branch 'main'</span>
+<span class="tok-prompt">$</span> <span class="tok-command">ls</span>
+<span class="tok-output">app.js  docs</span>
+<span class="tok-prompt">$</span> <span class="tok-command">git</span> <span class="tok-sub">merge</span> <span class="tok-arg">b2</span>
+<span class="tok-output">Updating 3f9a1c2..5e1c9a0</span>
+<span class="tok-output">Fast-forward</span>
+<span class="tok-output"> docs/notes.txt | 1 -</span>
+<span class="tok-green"> 1 file changed, 1 deletion(-)</span>
+<span class="tok-output"> delete mode 100644 docs/notes.txt</span>
+<span class="tok-prompt">$</span> <span class="tok-command">ls</span>
+<span class="tok-output">app.js</span></code></pre>
+                  </div>
+
+                  <div class="command-card__body">
+                    <p>
+                      A merge moves the whole tree, not just the text inside
+                      files. Files added on the source branch appear, edited
+                      files are combined, and files deleted on the source branch
+                      are deleted from the destination. Here <code>main</code>
+                      starts with two files: <code>app.js</code> and
+                      <code>docs/notes.txt</code>.
+                    </p>
+                    <p>
+                      <code>b2</code> is created from <code>main</code>, so it
+                      inherits both files. Removing
+                      <code>docs/notes.txt</code> on <code>b2</code> and
+                      committing the removal records a deletion in that branch.
+                      <code>main</code> still has the file because each branch
+                      has its own history. Running <code>git merge b2</code> on
+                      <code>main</code> applies the deletion:
+                      <code>docs/notes.txt</code> disappears, and the now-empty
+                      <code>docs/</code> folder goes with it.
+                    </p>
+
+                    <div class="compare-strip">
+                      <div class="compare-item">
+                        <code>main</code>
+                        <span>Has <code>app.js</code> and <code>docs/notes.txt</code>.</span>
+                      </div>
+                      <div class="compare-item">
+                        <code>b2</code>
+                        <span
+                          >Has <code>app.js</code> only; the deletion is
+                          committed.</span
+                        >
+                      </div>
+                      <div class="compare-item">
+                        <code>merge b2</code>
+                        <span>Applies the deletion to <code>main</code>.</span>
+                      </div>
+                      <div class="compare-item">
+                        <code>docs/</code>
+                        <span
+                          >Disappears because Git does not track empty
+                          folders.</span
+                        >
+                      </div>
+                    </div>
+
+                    <div class="flag-panel">
+                      <h4 class="flag-panel__title">
+                        <svg
+                          viewBox="0 0 16 16"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="1.6"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          aria-hidden="true"
+                        >
+                          <path d="M4 14V2m0 0 7 0-1.5 3L11 9H4"></path>
+                        </svg>
+                        Flags &amp; arguments
+                      </h4>
+                      <dl class="flag-list">
+                        <div class="flag">
+                          <dt><code>b2</code></dt>
+                          <dd>
+                            <strong>The branch whose tree is merged.</strong>
+                            Every change in it is applied to the current branch,
+                            including deleted files. The deletion must be
+                            committed on <code>b2</code>; an uncommitted removal
+                            is not part of the branch.
+                          </dd>
+                        </div>
+                      </dl>
+                    </div>
+
+                    <div class="callout callout--tip">
+                      <span class="callout__icon" aria-hidden="true">↳</span>
+                      <div class="callout__content">
+                        <strong>Stage the deletion, not just the edit.</strong>
+                        <p>
+                          <code>git rm docs/notes.txt</code> deletes the file and
+                          stages the removal in one step. If you delete it with
+                          your OS instead, run <code>git add -u</code> or
+                          <code>git add docs/notes.txt</code> before committing;
+                          otherwise the branch still contains the file and the
+                          merge has nothing to delete. Git tracks files, not
+                          folders, so use a placeholder such as
+                          <code>.gitkeep</code> if an empty directory must exist.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div class="callout callout--danger">
+                      <span class="callout__icon" aria-hidden="true">!</span>
+                      <div class="callout__content">
+                        <strong>Modify/delete conflicts.</strong>
+                        <p>
+                          If <code>main</code> changes
+                          <code>docs/notes.txt</code> after <code>b2</code>
+                          branches, merging stops with
+                          <code>CONFLICT (modify/delete)</code>: one side edited
+                          the file and the other deleted it. Accept the deletion
+                          with <code>git rm docs/notes.txt</code>, or keep the
+                          edited file with <code>git add docs/notes.txt</code>,
+                          then commit the resolution.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </article>
+
+                <article class="command-card" id="git-merge-true">
+                  <header class="command-card__header">
+                    <div class="command-card__heading">
+                      <div class="badge-row">
+                        <span class="badge badge--git">Git</span>
+                        <span class="badge badge--info">3-way merge</span>
+                      </div>
+                      <h3>True merge and the 3-way merge</h3>
+                    </div>
+                    <span
+                      class="command-card__number"
+                      aria-hidden="true"
+                    ></span>
+                  </header>
+
+                  <div class="terminal">
+                    <div class="terminal__bar" aria-hidden="true">
+                      <span class="terminal__dots"><i></i><i></i><i></i></span>
+                      <span class="terminal__label">terminal</span>
+                      <span class="terminal__lang">bash</span>
+                    </div>
+                    <pre
+                      tabindex="0"
+                      aria-label="Terminal command: git merge letter produces a conflict in code.txt"
+                    ><code><span class="tok-prompt">$</span> <span class="tok-command">git</span> <span class="tok-sub">merge</span> <span class="tok-arg">letter</span>
+<span class="tok-output">Auto-merging code.txt</span>
+<span class="tok-red">CONFLICT (content): Merge conflict in code.txt</span>
+<span class="tok-red">Automatic merge failed; fix conflicts and then commit the result.</span>
+<span class="tok-prompt">$</span> <span class="tok-command">git</span> <span class="tok-sub">status</span> <span class="tok-flag">--short</span>
+<span class="tok-red">UU code.txt</span></code></pre>
+                  </div>
+
+                  <div class="terminal">
+                    <div class="terminal__bar" aria-hidden="true">
+                      <span class="terminal__dots"><i></i><i></i><i></i></span>
+                      <span class="terminal__label">conflict markers</span>
+                      <span class="terminal__lang">bash</span>
+                    </div>
+                    <pre
+                      tabindex="0"
+                      aria-label="Terminal output: the conflict markers Git wrote into code.txt"
+                    ><code><span class="tok-prompt">$</span> <span class="tok-command">cat</span> <span class="tok-arg">code.txt</span>
+<span class="tok-red">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</span>
+<span class="tok-cyan">1 2 3</span>
+<span class="tok-red">=======</span>
+<span class="tok-warm">a b c</span>
+<span class="tok-red">&gt;&gt;&gt;&gt;&gt;&gt;&gt; letter</span></code></pre>
+                  </div>
+
+                  <div class="terminal">
+                    <div class="terminal__bar" aria-hidden="true">
+                      <span class="terminal__dots"><i></i><i></i><i></i></span>
+                      <span class="terminal__label">choice 1 &mdash; keep current</span>
+                      <span class="terminal__lang">bash</span>
+                    </div>
+                    <pre
+                      tabindex="0"
+                      aria-label="Terminal commands: keep the current branch version with git restore --ours and stage it"
+                    ><code><span class="tok-prompt">$</span> <span class="tok-command">git</span> <span class="tok-sub">restore</span> <span class="tok-flag">--ours</span> <span class="tok-arg">code.txt</span>
+<span class="tok-prompt">$</span> <span class="tok-command">cat</span> <span class="tok-arg">code.txt</span>
+<span class="tok-cyan">1 2 3</span>
+<span class="tok-prompt">$</span> <span class="tok-command">git</span> <span class="tok-sub">add</span> <span class="tok-arg">code.txt</span></code></pre>
+                  </div>
+
+                  <div class="terminal">
+                    <div class="terminal__bar" aria-hidden="true">
+                      <span class="terminal__dots"><i></i><i></i><i></i></span>
+                      <span class="terminal__label">choice 2 &mdash; keep incoming</span>
+                      <span class="terminal__lang">bash</span>
+                    </div>
+                    <pre
+                      tabindex="0"
+                      aria-label="Terminal commands: keep the incoming branch version with git restore --theirs and stage it"
+                    ><code><span class="tok-prompt">$</span> <span class="tok-command">git</span> <span class="tok-sub">restore</span> <span class="tok-flag">--theirs</span> <span class="tok-arg">code.txt</span>
+<span class="tok-prompt">$</span> <span class="tok-command">cat</span> <span class="tok-arg">code.txt</span>
+<span class="tok-warm">a b c</span>
+<span class="tok-prompt">$</span> <span class="tok-command">git</span> <span class="tok-sub">add</span> <span class="tok-arg">code.txt</span></code></pre>
+                  </div>
+
+                  <div class="terminal">
+                    <div class="terminal__bar" aria-hidden="true">
+                      <span class="terminal__dots"><i></i><i></i><i></i></span>
+                      <span class="terminal__label">choice 3 &mdash; keep both</span>
+                      <span class="terminal__lang">bash</span>
+                    </div>
+                    <pre
+                      tabindex="0"
+                      aria-label="Terminal commands: keep both versions by editing the file, then stage it"
+                    ><code><span class="tok-comment"># after deleting the markers</span>
+<span class="tok-prompt">$</span> <span class="tok-command">cat</span> <span class="tok-arg">code.txt</span>
+<span class="tok-cyan">1 2 3</span>
+<span class="tok-warm">a b c</span>
+<span class="tok-prompt">$</span> <span class="tok-command">git</span> <span class="tok-sub">add</span> <span class="tok-arg">code.txt</span></code></pre>
+                  </div>
+
+                  <div class="terminal">
+                    <div class="terminal__bar" aria-hidden="true">
+                      <span class="terminal__dots"><i></i><i></i><i></i></span>
+                      <span class="terminal__label">finish the merge</span>
+                      <span class="terminal__lang">bash</span>
+                    </div>
+                    <pre
+                      tabindex="0"
+                      aria-label="Terminal command: commit the resolved file to complete the merge"
+                    ><code><span class="tok-prompt">$</span> <span class="tok-command">git</span> <span class="tok-sub">commit</span>
+<span class="tok-green">[main 9d4e2f0] Merge branch 'letter'</span></code></pre>
+                  </div>
+
+                  <div class="command-card__body">
+                    <p>
+                      A true merge happens when both the current branch and the
+                      target branch have new, divergent commits. After the
+                      fast-forward, <code>main</code> is at the
+                      <code>numbers</code> tip with <code>1 2 3</code> in
+                      <code>code.txt</code>; <code>letter</code> has its own
+                      commit with <code>a b c</code>. Neither tip is an ancestor
+                      of the other, so Git cannot simply move a pointer. It
+                      combines both lines of work and normally creates a new
+                      <strong>merge commit</strong> with two parents—one from
+                      each branch.
+                    </p>
+                    <p>
+                      <strong>A 3-way merge is the algorithm Git uses here.</strong>
+                      It compares three points: the tip of the current branch,
+                      the tip of the target branch, and their common ancestor
+                      commit. That common ancestor is called the
+                      <strong>merge base</strong>. Here the base is the initial
+                      commit, where <code>code.txt</code> was empty. Comparing
+                      all three points tells Git exactly what changed on each
+                      side.
+                    </p>
+
+                    <div class="compare-strip">
+                      <div class="compare-item">
+                        <code>HEAD (main)</code>
+                        <span
+                          ><code>code.txt</code> contains <code>1 2 3</code>.</span
+                        >
+                      </div>
+                      <div class="compare-item">
+                        <code>letter</code>
+                        <span
+                          ><code>code.txt</code> contains <code>a b c</code>.</span
+                        >
+                      </div>
+                      <div class="compare-item">
+                        <code>merge base</code>
+                        <span
+                          >The initial commit, where <code>code.txt</code> was
+                          empty.</span
+                        >
+                      </div>
+                      <div class="compare-item">
+                        <code>result</code>
+                        <span
+                          >Both sides changed the same line, so Git stops with a
+                          conflict.</span
+                        >
+                      </div>
+                    </div>
+
+                    <p>
+                      Because <code>main</code> says <code>1 2 3</code> and
+                      <code>letter</code> says <code>a b c</code> for the same
+                      line, Git cannot pick a winner. It pauses the 3-way merge,
+                      writes conflict markers into <code>code.txt</code>, and
+                      leaves the file unmerged (<code>UU</code> in
+                      <code>git status --short</code>).
+                    </p>
+                    <p>
+                      <strong>Git will not choose for you.</strong> A conflict
+                      has exactly three outcomes: keep the current branch's
+                      version (<strong>ours</strong>), keep the incoming
+                      branch's version (<strong>theirs</strong>), or keep
+                      <strong>both</strong>. The three choice terminals above
+                      show each outcome, and each one stages the file with
+                      <code>git add</code>.
+                    </p>
+
+                    <div class="compare-strip">
+                      <div class="compare-item">
+                        <code>--ours</code>
+                        <span
+                          >Keeps <code>main</code>'s line:
+                          <code>1 2 3</code>.</span
+                        >
+                      </div>
+                      <div class="compare-item">
+                        <code>--theirs</code>
+                        <span
+                          >Keeps <code>letter</code>'s line:
+                          <code>a b c</code>.</span
+                        >
+                      </div>
+                      <div class="compare-item">
+                        <code>keep both</code>
+                        <span
+                          >Keeps <code>1 2 3</code> then
+                          <code>a b c</code>.</span
+                        >
+                      </div>
+                      <div class="compare-item">
+                        <code>git add</code>
+                        <span
+                          >Marks whichever result you chose as
+                          resolved.</span
+                        >
+                      </div>
+                    </div>
+
+                    <p>
+                      <strong>1. Choose the content.</strong> Run
+                      <code>git restore --ours code.txt</code> to keep
+                      <code>main</code>'s <code>1 2 3</code>, run
+                      <code>git restore --theirs code.txt</code> to keep
+                      <code>letter</code>'s <code>a b c</code>, or open the
+                      file, delete all three marker lines, and keep both lines
+                      yourself. The lines between
+                      <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</code> and
+                      <code>=======</code> are <code>main</code>'s version; the
+                      lines between <code>=======</code> and
+                      <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt; letter</code> are
+                      <code>letter</code>'s.
+                    </p>
+                    <p>
+                      <strong>2. Stage the result.</strong> Run
+                      <code>git add code.txt</code>. Staging tells Git the
+                      conflict is resolved and records the chosen content.
+                    </p>
+                    <p>
+                      <strong>3. Complete the merge.</strong> Run
+                      <code>git commit</code>; Git opens the prepared merge
+                      message (<code>Merge branch 'letter'</code>) for you to
+                      save and close. <code>git merge --continue</code> does the
+                      same thing. The commit is identical no matter which of the
+                      three choices you made—only the content of
+                      <code>code.txt</code> differs.
+                    </p>
+
+                    <div class="flag-panel">
+                      <h4 class="flag-panel__title">
+                        <svg
+                          viewBox="0 0 16 16"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="1.6"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          aria-hidden="true"
+                        >
+                          <path d="M4 14V2m0 0 7 0-1.5 3L11 9H4"></path>
+                        </svg>
+                        Flags &amp; arguments
+                      </h4>
+                      <dl class="flag-list">
+                        <div class="flag">
+                          <dt><code>letter</code></dt>
+                          <dd>
+                            <strong>The divergent branch.</strong> Its commit
+                            with <code>a b c</code> is combined with
+                            <code>main</code>'s <code>1 2 3</code>. The merge
+                            commit records both branch tips as parents.
+                          </dd>
+                        </div>
+                        <div class="flag">
+                          <dt><code>--ours</code></dt>
+                          <dd>
+                            <strong>Keep the current branch's version.</strong>
+                            Restores stage #2, the content on the branch you are
+                            merging into (<code>main</code>,
+                            <code>1 2 3</code>), into the working tree. Run
+                            <code>git add</code> afterwards to mark the conflict
+                            resolved.
+                          </dd>
+                        </div>
+                        <div class="flag">
+                          <dt><code>--theirs</code></dt>
+                          <dd>
+                            <strong>Keep the incoming branch's version.</strong>
+                            Restores stage #3, the content from the branch named
+                            in <code>git merge</code> (<code>letter</code>,
+                            <code>a b c</code>), into the working tree. Run
+                            <code>git add</code> afterwards to mark the conflict
+                            resolved.
+                          </dd>
+                        </div>
+                      </dl>
+                    </div>
+
+                    <div class="callout callout--info">
+                      <span class="callout__icon" aria-hidden="true">i</span>
+                      <div class="callout__content">
+                        <strong>Ours is the branch you are on.</strong>
+                        <p>
+                          During a merge, <code>--ours</code> always means the
+                          checked-out branch (<code>main</code>) and
+                          <code>--theirs</code> means the branch you named on the
+                          command line (<code>letter</code>). The labels follow
+                          the merge, not who wrote the code. Keeping both is not
+                          a flag: remove the three marker lines by hand, then
+                          stage the file.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div class="callout callout--danger">
+                      <span class="callout__icon" aria-hidden="true">!</span>
+                      <div class="callout__content">
+                        <strong>Never commit the markers.</strong>
+                        <p>
+                          If you stage and commit while
+                          <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code>,
+                          <code>=======</code>, or
+                          <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code> remain, those
+                          characters become part of the file. Search the file for
+                          them before staging. If the conflict is too tangled,
+                          <code>git merge --abort</code> restores
+                          <code>code.txt</code> to <code>1 2 3</code>.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </article>
+
+                <article class="command-card" id="git-merge-abort">
+                  <header class="command-card__header">
+                    <div class="command-card__heading">
+                      <div class="badge-row">
+                        <span class="badge badge--git">Git</span>
+                        <span class="badge badge--neutral">Recovery</span>
+                      </div>
+                      <h3>Cancel an in-progress merge</h3>
+                    </div>
+                    <span
+                      class="command-card__number"
+                      aria-hidden="true"
+                    ></span>
+                  </header>
+
+                  <div class="terminal">
+                    <div class="terminal__bar" aria-hidden="true">
+                      <span class="terminal__dots"><i></i><i></i><i></i></span>
+                      <span class="terminal__label">terminal</span>
+                      <span class="terminal__lang">bash</span>
+                    </div>
+                    <pre
+                      tabindex="0"
+                      aria-label="Terminal command: git merge abort restores code.txt to 1 2 3"
+                    ><code><span class="tok-prompt">$</span> <span class="tok-command">git</span> <span class="tok-sub">merge</span> <span class="tok-flag">--abort</span>
+<span class="tok-prompt">$</span> <span class="tok-command">git</span> <span class="tok-sub">status</span> <span class="tok-flag">--short</span>
+<span class="tok-comment"># no output: working tree clean, no merge in progress</span>
+<span class="tok-prompt">$</span> <span class="tok-command">cat</span> <span class="tok-arg">code.txt</span>
+<span class="tok-cyan">1 2 3</span></code></pre>
+                  </div>
+
+                  <div class="command-card__body">
+                    <p>
+                      Cancels an ongoing merge process and restores the project
+                      back to its exact state before you ran the merge command.
+                      This is the alternative to the resolution in the previous
+                      card: if you decide not to resolve the <code>letter</code>
+                      conflict, run <code>git merge --abort</code> instead. Here
+                      <code>main</code> returns to the <code>numbers</code> tip
+                      (<code>7b2e4d8</code>) and <code>code.txt</code> contains
+                      <code>1 2 3</code> again. The conflict markers disappear,
+                      <code>letter</code> is left untouched, and no merge commit
+                      is created. On success, Git usually prints nothing;
+                      <code>git status</code> should show no merge in progress.
+                    </p>
+                    <p>
+                      Run it while the merge is still in progress—after a
+                      conflict, or any time before the merge commit is created.
+                      It only cancels <em>this</em> merge: the earlier
+                      <code>git merge numbers</code> fast-forward stays in
+                      history. Once the merge commit exists,
+                      <code>--abort</code> no longer applies; undo that commit
+                      with <code>git reset</code> or <code>git revert</code>
+                      instead.
+                    </p>
+
+                    <div class="flag-panel">
+                      <h4 class="flag-panel__title">
+                        <svg
+                          viewBox="0 0 16 16"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="1.6"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          aria-hidden="true"
+                        >
+                          <path d="M4 14V2m0 0 7 0-1.5 3L11 9H4"></path>
+                        </svg>
+                        Flags &amp; arguments
+                      </h4>
+                      <dl class="flag-list">
+                        <div class="flag">
+                          <dt><code>--abort</code></dt>
+                          <dd>
+                            <strong>Cancel and restore.</strong> Abandons the
+                            merge and reconstructs the pre-merge state—here,
+                            <code>code.txt</code> returns to <code>1 2 3</code>.
+                            It is extremely useful when you encounter complex
+                            merge conflicts and want to safely back out and
+                            start over. It only applies while a merge is in
+                            progress.
+                          </dd>
+                        </div>
+                      </dl>
+                    </div>
+
+                    <div class="callout callout--danger">
+                      <span class="callout__icon" aria-hidden="true">!</span>
+                      <div class="callout__content">
+                        <strong>Abort is not a time machine for local edits.</strong>
+                        <p>
+                          If you had uncommitted changes before starting the
+                          merge, Git may be unable to reconstruct all of them.
+                          Commit or stash your work first so
+                          <code>git merge --abort</code> can return you to a
+                          known, clean state.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </article>
+              </div>
+            </section>
           </div>
 
           <section class="closing-card" aria-labelledby="closing-title">
@@ -6209,7 +8652,7 @@ Removing notes.tmp</span></code></pre>
             <p class="footer-made">
               Made by
               <span class="footer-signature" title="Signature: ghnnam"
-                >Ahmed ghnnam</span
+                >Ahmed Ghnnam</span
               >
             </p>
           </div>
@@ -6238,5 +8681,847 @@ Removing notes.tmp</span></code></pre>
         </div>
       </div>
     </footer>
+
+    <p class="sr-only" id="copy-status" role="status"></p>
+
+    <script>
+      (function () {
+        "use strict";
+
+        var root = document.documentElement;
+        var sidebar = document.getElementById("sidebar");
+        var sidebarToggle = document.getElementById("toc-toggle");
+        var sidebarClose = document.getElementById("sidebar-close");
+        var backdrop = document.getElementById("sidebar-backdrop");
+        var searchInput = document.getElementById("command-search");
+        var searchClear = document.getElementById("search-clear");
+        var searchStatus = document.getElementById("search-status");
+        var themeToggle = document.getElementById("theme-toggle");
+        var copyStatus = document.getElementById("copy-status");
+        var mobileQuery = window.matchMedia("(max-width: 1020px)");
+        var sections = [];
+        var plainItems = [];
+        var itemBySection = {};
+        var savedOpen = new Map();
+        var searchActive = false;
+
+        /* ------------------------------------------------------------
+           Theme
+           ------------------------------------------------------------ */
+        function setTheme(theme, persist) {
+          root.setAttribute("data-theme", theme);
+
+          var dark = theme === "dark";
+          if (themeToggle) {
+            var label = dark
+              ? "Switch to light theme"
+              : "Switch to dark theme";
+            themeToggle.setAttribute("aria-label", label);
+            themeToggle.setAttribute("title", label);
+          }
+
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) {
+            meta.setAttribute("content", dark ? "#141210" : "#f7f5f1");
+          }
+
+          if (persist) {
+            try {
+              window.localStorage.setItem("git-guide-theme", theme);
+            } catch (error) {
+              /* Storage can be blocked; the toggle still works this session. */
+            }
+          }
+        }
+
+        setTheme(root.getAttribute("data-theme") === "dark" ? "dark" : "light", false);
+
+        if (themeToggle) {
+          themeToggle.addEventListener("click", function () {
+            setTheme(
+              root.getAttribute("data-theme") === "dark" ? "light" : "dark",
+              true,
+            );
+          });
+        }
+
+        if (window.matchMedia) {
+          var schemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
+          var followSystem = function (event) {
+            var stored = null;
+            try {
+              stored = window.localStorage.getItem("git-guide-theme");
+            } catch (error) {
+              stored = null;
+            }
+            if (stored === "dark" || stored === "light") {
+              return;
+            }
+            setTheme(event.matches ? "dark" : "light", false);
+          };
+
+          if (schemeQuery.addEventListener) {
+            schemeQuery.addEventListener("change", followSystem);
+          } else if (schemeQuery.addListener) {
+            schemeQuery.addListener(followSystem);
+          }
+        }
+
+        /* ------------------------------------------------------------
+           Sidebar accordion
+           ------------------------------------------------------------ */
+        function setExpanded(item, expanded) {
+          var toggle = item.querySelector(".sidebar__toggle");
+          var sublist = item.querySelector(".sidebar__sublist");
+          if (!toggle || !sublist) {
+            return;
+          }
+
+          var name = item.querySelector(".sidebar__name");
+          var sectionName = name ? name.textContent.trim() : "section";
+
+          toggle.setAttribute("aria-expanded", expanded ? "true" : "false");
+          toggle.setAttribute(
+            "aria-label",
+            (expanded ? "Hide commands in " : "Show commands in ") + sectionName,
+          );
+          sublist.hidden = !expanded;
+          item.classList.toggle("is-open", expanded);
+        }
+
+        function collapseOthers(except) {
+          if (searchActive) {
+            return;
+          }
+
+          sections.forEach(function (item) {
+            if (item !== except && item.classList.contains("is-open")) {
+              setExpanded(item, false);
+            }
+          });
+        }
+
+        function buildAccordion() {
+          var nodes = [].slice.call(
+            document.querySelectorAll(".sidebar__list > li"),
+          );
+
+          nodes.forEach(function (item) {
+            var link = item.querySelector(".sidebar__link");
+            if (!link) {
+              plainItems.push(item);
+              return;
+            }
+
+            var href = link.getAttribute("href") || "";
+            var target =
+              href.charAt(0) === "#"
+                ? document.getElementById(href.slice(1))
+                : null;
+            if (!target) {
+              plainItems.push(item);
+              return;
+            }
+
+            var cards = [].slice.call(target.querySelectorAll(".command-card"));
+            if (!cards.length) {
+              plainItems.push(item);
+              return;
+            }
+
+            item.classList.add("sidebar__item");
+
+            var count = link.querySelector(".sidebar__count");
+            if (count) {
+              count.textContent = String(cards.length);
+            }
+
+            var row = document.createElement("div");
+            row.className = "sidebar__row";
+            link.parentNode.insertBefore(row, link);
+            row.appendChild(link);
+
+            var toggle = document.createElement("button");
+            toggle.type = "button";
+            toggle.className = "sidebar__toggle";
+            toggle.innerHTML =
+              '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 4 4 4-4 4"></path></svg>';
+
+            var sublist = document.createElement("ul");
+            sublist.className = "sidebar__sublist";
+            sublist.id = "sidebar-sub-" + target.id;
+            sublist.hidden = true;
+
+            toggle.setAttribute("aria-controls", sublist.id);
+            toggle.setAttribute("aria-expanded", "false");
+            toggle.setAttribute(
+              "aria-label",
+              "Show commands in " +
+                (link.querySelector(".sidebar__name")
+                  ? link.querySelector(".sidebar__name").textContent.trim()
+                  : "section"),
+            );
+            row.appendChild(toggle);
+
+            cards.forEach(function (card) {
+              var heading = card.querySelector("h3");
+              if (!heading || !card.id) {
+                return;
+              }
+
+              var li = document.createElement("li");
+              var sublink = document.createElement("a");
+              sublink.className = "sidebar__cmd";
+              sublink.href = "#" + card.id;
+              sublink.textContent = heading.textContent.trim();
+
+              var preText = [].slice
+                .call(card.querySelectorAll("pre"))
+                .map(function (pre) {
+                  return pre.textContent;
+                })
+                .join(" ");
+              var body = card.querySelector(".command-card__body");
+              var sectionLabel = link.querySelector(".sidebar__name");
+
+              sublink.dataset.search = (
+                heading.textContent +
+                " " +
+                (body ? body.textContent : "") +
+                " " +
+                preText +
+                " " +
+                (sectionLabel ? sectionLabel.textContent : "")
+              )
+                .toLowerCase()
+                .replace(/\s+/g, " ");
+
+              li.appendChild(sublink);
+              sublist.appendChild(li);
+            });
+
+            item.appendChild(sublist);
+            sections.push(item);
+            itemBySection[target.id] = item;
+
+            toggle.addEventListener("click", function () {
+              var expanded = toggle.getAttribute("aria-expanded") === "true";
+              if (!expanded) {
+                collapseOthers(item);
+              }
+              setExpanded(item, !expanded);
+              if (searchActive) {
+                savedOpen.set(item, !expanded);
+              }
+            });
+
+            link.addEventListener("click", function () {
+              collapseOthers(item);
+              setExpanded(item, true);
+              if (searchActive) {
+                savedOpen.set(item, true);
+              }
+            });
+          });
+        }
+
+        function expandHashTarget() {
+          var hash = window.location.hash.replace(/^#/, "");
+          if (!hash) {
+            return;
+          }
+
+          var target = document.getElementById(hash);
+          if (!target) {
+            return;
+          }
+
+          var section =
+            target.classList.contains("doc-section")
+              ? target
+              : target.closest(".doc-section");
+          if (!section && target.id === "guide") {
+            section = target;
+          }
+
+          if (section && itemBySection[section.id]) {
+            collapseOthers(itemBySection[section.id]);
+            setExpanded(itemBySection[section.id], true);
+          }
+        }
+
+        /* ------------------------------------------------------------
+           Live search
+           ------------------------------------------------------------ */
+        function applySearch(rawValue) {
+          var query = rawValue.trim().toLowerCase();
+
+          if (!query) {
+            if (searchActive) {
+              sections.forEach(function (item) {
+                item.hidden = false;
+                var sublist = item.querySelector(".sidebar__sublist");
+                if (sublist) {
+                  [].slice.call(sublist.children).forEach(function (li) {
+                    li.hidden = false;
+                  });
+                  setExpanded(item, savedOpen.get(item) === true);
+                }
+              });
+              plainItems.forEach(function (item) {
+                item.hidden = false;
+              });
+            }
+
+            searchActive = false;
+            if (searchClear) {
+              searchClear.hidden = true;
+            }
+            if (searchStatus) {
+              searchStatus.hidden = true;
+              searchStatus.textContent = "";
+            }
+            return;
+          }
+
+          if (!searchActive) {
+            savedOpen.clear();
+            sections.forEach(function (item) {
+              savedOpen.set(item, item.classList.contains("is-open"));
+            });
+          }
+
+          searchActive = true;
+          if (searchClear) {
+            searchClear.hidden = false;
+          }
+
+          var matchCount = 0;
+          var plainMatches = 0;
+
+          sections.forEach(function (item) {
+            var name = item.querySelector(".sidebar__name");
+            var sectionName = name ? name.textContent.trim().toLowerCase() : "";
+            var sectionHit = sectionName.indexOf(query) !== -1;
+            var sublinks = [].slice.call(item.querySelectorAll(".sidebar__cmd"));
+            var itemMatches = 0;
+
+            sublinks.forEach(function (sublink) {
+              var hit =
+                sectionHit ||
+                (sublink.dataset.search || "").indexOf(query) !== -1;
+              sublink.parentNode.hidden = !hit;
+              if (hit) {
+                itemMatches += 1;
+              }
+            });
+
+            item.hidden = !sectionHit && itemMatches === 0;
+            if (itemMatches > 0) {
+              setExpanded(item, true);
+            }
+
+            matchCount += itemMatches;
+          });
+
+          plainItems.forEach(function (item) {
+            var name = item.querySelector(".sidebar__name");
+            var sectionName = name ? name.textContent.trim().toLowerCase() : "";
+            var hit = sectionName.indexOf(query) !== -1;
+            item.hidden = !hit;
+            if (hit) {
+              plainMatches += 1;
+            }
+          });
+
+          if (searchStatus) {
+            searchStatus.hidden = false;
+            if (matchCount === 0 && plainMatches === 0) {
+              searchStatus.textContent =
+                "No commands match \u201c" + rawValue.trim() + "\u201d.";
+            } else if (matchCount === 0) {
+              searchStatus.textContent =
+                plainMatches +
+                (plainMatches === 1 ? " section found." : " sections found.");
+            } else {
+              searchStatus.textContent =
+                matchCount +
+                (matchCount === 1 ? " command found." : " commands found.");
+            }
+          }
+        }
+
+        if (searchInput) {
+          var searchTimer;
+
+          searchInput.addEventListener("input", function () {
+            window.clearTimeout(searchTimer);
+            searchTimer = window.setTimeout(function () {
+              applySearch(searchInput.value);
+            }, 90);
+          });
+
+          searchInput.addEventListener("keydown", function (event) {
+            if (event.key === "Escape" && searchInput.value !== "") {
+              event.stopPropagation();
+              searchInput.value = "";
+              applySearch("");
+            }
+          });
+        }
+
+        if (searchClear) {
+          searchClear.addEventListener("click", function () {
+            if (searchInput) {
+              searchInput.value = "";
+              applySearch("");
+              searchInput.focus();
+            }
+          });
+        }
+
+        /* ------------------------------------------------------------
+           Copy buttons
+           ------------------------------------------------------------ */
+        function legacyCopy(text) {
+          return new Promise(function (resolve, reject) {
+            var area = document.createElement("textarea");
+            area.value = text;
+            area.setAttribute("readonly", "");
+            area.style.position = "fixed";
+            area.style.top = "-1000px";
+            area.style.left = "-1000px";
+            document.body.appendChild(area);
+            area.select();
+
+            try {
+              if (document.execCommand("copy")) {
+                resolve();
+              } else {
+                reject(new Error("copy failed"));
+              }
+            } catch (error) {
+              reject(error);
+            } finally {
+              area.remove();
+            }
+          });
+        }
+
+        function copyText(text) {
+          if (navigator.clipboard && window.isSecureContext) {
+            return navigator.clipboard.writeText(text).catch(function () {
+              return legacyCopy(text);
+            });
+          }
+          return legacyCopy(text);
+        }
+
+        function announceCopy(message) {
+          if (!copyStatus) {
+            return;
+          }
+          copyStatus.textContent = "";
+          window.requestAnimationFrame(function () {
+            copyStatus.textContent = message;
+          });
+        }
+
+        function extractCommands(rawText) {
+          var text = rawText
+            .replace(/\u00a0/g, " ")
+            .replace(/\r\n?/g, "\n");
+          var lines = text.split("\n");
+          var commands = [];
+          var hasPrompt = false;
+
+          lines.forEach(function (line) {
+            var match = /^\s*\$\s?(.*)$/.exec(line);
+            if (!match) {
+              return;
+            }
+
+            hasPrompt = true;
+            var command = match[1].replace(/\s+$/, "");
+            if (command) {
+              commands.push(command);
+            }
+          });
+
+          if (hasPrompt && commands.length) {
+            return commands.join("\n");
+          }
+
+          return text.replace(/^\s+|\s+$/g, "");
+        }
+
+        function addCopyButtons() {
+          var terminals = [].slice.call(document.querySelectorAll(".terminal"));
+
+          terminals.forEach(function (terminal) {
+            var code = terminal.querySelector("pre > code");
+            if (!code) {
+              return;
+            }
+
+            var button = document.createElement("button");
+            button.type = "button";
+            button.className = "copy-btn";
+            button.setAttribute("aria-label", "Copy terminal commands");
+            button.innerHTML =
+              '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="5.2" y="5.2" width="8" height="8" rx="1.4"></rect><path d="M10.8 5.2V3.8a1.4 1.4 0 0 0-1.4-1.4H3.8a1.4 1.4 0 0 0-1.4 1.4v5.6a1.4 1.4 0 0 0 1.4 1.4h1.4"></path></svg><span class="copy-btn__label">Copy</span>';
+
+            terminal.classList.add("has-copy");
+            terminal.appendChild(button);
+
+            var resetTimer;
+            button.addEventListener("click", function () {
+              var text = extractCommands(code.textContent);
+
+              copyText(text)
+                .then(function () {
+                  button.classList.add("is-copied");
+                  button.querySelector(".copy-btn__label").textContent =
+                    "Copied!";
+                  announceCopy("Terminal commands copied to the clipboard.");
+                  window.clearTimeout(resetTimer);
+                  resetTimer = window.setTimeout(function () {
+                    button.classList.remove("is-copied");
+                    button.querySelector(".copy-btn__label").textContent =
+                      "Copy";
+                  }, 2000);
+                })
+                .catch(function () {
+                  announceCopy(
+                    "Copy failed. Select the terminal text and copy it manually.",
+                  );
+                });
+            });
+          });
+        }
+
+        /* ------------------------------------------------------------
+           Mobile drawer
+           ------------------------------------------------------------ */
+        function openSidebar() {
+          if (!sidebar || !mobileQuery.matches) {
+            return;
+          }
+
+          sidebar.classList.add("is-open");
+          if (backdrop) {
+            backdrop.classList.add("is-open");
+          }
+          document.body.classList.add("nav-open");
+          if (sidebarToggle) {
+            sidebarToggle.setAttribute("aria-expanded", "true");
+            sidebarToggle.setAttribute("aria-label", "Close command menu");
+            sidebarToggle.setAttribute("title", "Close command menu");
+          }
+
+          var target = searchInput || sidebarClose;
+          if (target) {
+            focusWhenReady(target);
+          }
+        }
+
+        function closeSidebar(returnFocus) {
+          if (!sidebar) {
+            return;
+          }
+
+          var wasOpen = sidebar.classList.contains("is-open");
+          sidebar.classList.remove("is-open");
+          if (backdrop) {
+            backdrop.classList.remove("is-open");
+          }
+          document.body.classList.remove("nav-open");
+          if (sidebarToggle) {
+            sidebarToggle.setAttribute("aria-expanded", "false");
+            sidebarToggle.setAttribute("aria-label", "Open command menu");
+            sidebarToggle.setAttribute("title", "Open command menu");
+          }
+
+          if (wasOpen && returnFocus !== false && sidebarToggle) {
+            sidebarToggle.focus();
+          }
+        }
+
+        function getSidebarFocusables() {
+          if (!sidebar) {
+            return [];
+          }
+
+          return [].slice
+            .call(
+              sidebar.querySelectorAll(
+                'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+              ),
+            )
+            .filter(function (element) {
+              return (
+                element.getClientRects().length > 0 &&
+                window.getComputedStyle(element).visibility !== "hidden"
+              );
+            });
+        }
+
+        function focusWhenReady(target) {
+          var attempts = 0;
+
+          function attempt() {
+            if (!sidebar || !sidebar.classList.contains("is-open")) {
+              return;
+            }
+
+            target.focus();
+            if (document.activeElement !== target && attempts < 15) {
+              attempts += 1;
+              window.setTimeout(attempt, 40);
+            }
+          }
+
+          window.requestAnimationFrame(function () {
+            window.requestAnimationFrame(attempt);
+          });
+        }
+
+        function focusSectionTarget(target) {
+          if (!target) {
+            return;
+          }
+
+          var focusTarget = target.querySelector("h2, h3") || target;
+          if (!focusTarget.hasAttribute("tabindex")) {
+            focusTarget.setAttribute("tabindex", "-1");
+          }
+
+          try {
+            focusTarget.focus({ preventScroll: true });
+          } catch (error) {
+            focusTarget.focus();
+          }
+        }
+
+        if (sidebar) {
+          sidebar.addEventListener("keydown", function (event) {
+            if (event.key !== "Tab" || !sidebar.classList.contains("is-open")) {
+              return;
+            }
+
+            var focusables = getSidebarFocusables();
+            if (!focusables.length) {
+              return;
+            }
+
+            var first = focusables[0];
+            var last = focusables[focusables.length - 1];
+
+            if (!sidebar.contains(document.activeElement)) {
+              event.preventDefault();
+              (event.shiftKey ? last : first).focus();
+              return;
+            }
+
+            if (event.shiftKey && document.activeElement === first) {
+              event.preventDefault();
+              last.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+              event.preventDefault();
+              first.focus();
+            }
+          });
+        }
+
+        if (sidebarToggle) {
+          sidebarToggle.addEventListener("click", function () {
+            if (sidebar && sidebar.classList.contains("is-open")) {
+              closeSidebar(true);
+            } else {
+              openSidebar();
+            }
+          });
+        }
+
+        if (sidebarClose) {
+          sidebarClose.addEventListener("click", function () {
+            closeSidebar(true);
+          });
+        }
+
+        if (backdrop) {
+          backdrop.addEventListener("click", function () {
+            closeSidebar(true);
+          });
+        }
+
+        document.addEventListener("keydown", function (event) {
+          if (
+            event.key === "Escape" &&
+            sidebar &&
+            sidebar.classList.contains("is-open")
+          ) {
+            closeSidebar(true);
+          }
+        });
+
+        var handleMobileChange = function (event) {
+          if (!event.matches) {
+            closeSidebar(false);
+          } else if (
+            sidebar &&
+            !sidebar.classList.contains("is-open") &&
+            sidebar.contains(document.activeElement) &&
+            sidebarToggle
+          ) {
+            sidebarToggle.focus();
+          }
+        };
+
+        if (mobileQuery.addEventListener) {
+          mobileQuery.addEventListener("change", handleMobileChange);
+        } else if (mobileQuery.addListener) {
+          mobileQuery.addListener(handleMobileChange);
+        }
+
+        document.addEventListener("click", function (event) {
+          var link =
+            event.target && event.target.closest
+              ? event.target.closest('a[href^="#"]')
+              : null;
+          if (!link) {
+            return;
+          }
+
+          var id = (link.getAttribute("href") || "").slice(1);
+          if (!id) {
+            return;
+          }
+
+          var target = document.getElementById(id);
+          if (!target) {
+            return;
+          }
+
+          var section = target.classList.contains("doc-section")
+            ? target
+            : target.closest(".doc-section");
+          if (!section && target.id === "guide") {
+            section = target;
+          }
+
+          if (section && itemBySection[section.id]) {
+            collapseOthers(itemBySection[section.id]);
+            setExpanded(itemBySection[section.id], true);
+          }
+
+          var drawerWasOpen =
+            mobileQuery.matches &&
+            sidebar &&
+            sidebar.classList.contains("is-open");
+          var fromSidebar = !!link.closest(".sidebar");
+
+          if (mobileQuery.matches) {
+            closeSidebar(false);
+          }
+
+          if (drawerWasOpen && fromSidebar) {
+            window.setTimeout(function () {
+              focusSectionTarget(target);
+            }, 0);
+          }
+        });
+
+        /* ------------------------------------------------------------
+           Active-section highlighting
+           ------------------------------------------------------------ */
+        var spySections = [];
+        var spyCards = [];
+        var sectionLinks = [];
+        var commandLinks = [];
+        var scrollTicking = false;
+
+        function updateSpy() {
+          var header = document.querySelector(".site-header");
+          var offset = (header ? header.offsetHeight : 74) + 90;
+          var activeSection = null;
+          var activeCard = null;
+          var index;
+
+          for (index = 0; index < spySections.length; index += 1) {
+            if (spySections[index].getBoundingClientRect().top <= offset) {
+              activeSection = spySections[index];
+            }
+          }
+
+          for (index = 0; index < spyCards.length; index += 1) {
+            if (spyCards[index].getBoundingClientRect().top <= offset) {
+              activeCard = spyCards[index];
+            }
+          }
+
+          sectionLinks.forEach(function (link) {
+            var isActive =
+              !!activeSection &&
+              link.getAttribute("href") === "#" + activeSection.id;
+            link.classList.toggle("is-active", isActive);
+            if (isActive) {
+              link.setAttribute("aria-current", "location");
+            } else {
+              link.removeAttribute("aria-current");
+            }
+          });
+
+          commandLinks.forEach(function (link) {
+            var isActive =
+              !!activeCard && link.getAttribute("href") === "#" + activeCard.id;
+            link.classList.toggle("is-active", isActive);
+            if (isActive) {
+              link.setAttribute("aria-current", "location");
+            } else {
+              link.removeAttribute("aria-current");
+            }
+          });
+        }
+
+        function scheduleSpy() {
+          if (scrollTicking) {
+            return;
+          }
+          scrollTicking = true;
+          window.requestAnimationFrame(function () {
+            scrollTicking = false;
+            updateSpy();
+          });
+        }
+
+        /* ------------------------------------------------------------
+           Initialise
+           ------------------------------------------------------------ */
+        buildAccordion();
+        addCopyButtons();
+        expandHashTarget();
+
+        spySections = [].slice.call(
+          document.querySelectorAll("#guide, .doc-section"),
+        );
+        spyCards = [].slice.call(document.querySelectorAll(".command-card"));
+        sectionLinks = [].slice.call(
+          document.querySelectorAll(".sidebar__link"),
+        );
+        commandLinks = [].slice.call(
+          document.querySelectorAll(".sidebar__cmd"),
+        );
+
+        window.addEventListener("scroll", scheduleSpy, { passive: true });
+        window.addEventListener("resize", scheduleSpy);
+        window.addEventListener("hashchange", function () {
+          expandHashTarget();
+          scheduleSpy();
+        });
+        window.addEventListener("load", scheduleSpy);
+        scheduleSpy();
+      })();
+    </script>
   </body>
 </html>
