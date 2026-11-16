@@ -1484,120 +1484,305 @@
         line-height: 1.75;
       }
 
-      .workflow {
+      .pipeline {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(
-            0,
-            1fr
-          );
+        grid-template-columns:
+          minmax(0, 1fr) clamp(4.75rem, 7vw, 8.5rem) minmax(0, 1fr)
+          clamp(4.75rem, 7vw, 8.5rem) minmax(0, 1fr);
         align-items: stretch;
-        gap: 0.7rem;
+        gap: 0.55rem;
         margin: 1.7rem 0;
       }
 
-      .flow-step {
+      .pipeline__stage {
+        --stage-accent: var(--muted-soft);
+        --stage-border: var(--line);
+        --stage-surface: var(--surface-soft);
+        --stage-icon-bg: var(--paper-deep);
+        --stage-icon-ink: var(--ink-soft);
+        position: relative;
         display: flex;
         flex-direction: column;
         min-width: 0;
-        padding: 0.9rem;
-        border: 1px solid var(--line);
-        border-radius: 10px;
-        background: var(--surface-soft);
+        padding: clamp(0.82rem, 1.2vw, 1.05rem);
+        border: 1px solid var(--stage-border);
+        border-radius: 14px;
+        background: var(--stage-surface);
+        box-shadow: var(--shadow-sm);
+        transition:
+          border-color 0.18s ease,
+          box-shadow 0.18s ease,
+          transform 0.18s ease;
       }
 
-      .flow-step__top {
+      .pipeline__stage::before {
+        content: "";
+        position: absolute;
+        inset: 0 0 auto;
+        height: 3px;
+        border-radius: 14px 14px 0 0;
+        background: var(--stage-accent);
+        opacity: 0.9;
+      }
+
+      .pipeline__stage--worktree {
+        --stage-accent: var(--muted-soft);
+      }
+
+      .pipeline__stage--staging {
+        --stage-accent: var(--git);
+        --stage-border: #f3d1c8;
+        --stage-surface: var(--git-wash);
+        --stage-icon-bg: var(--git-soft);
+        --stage-icon-ink: var(--git-deep);
+      }
+
+      .pipeline__stage--repo {
+        --stage-accent: var(--green);
+        --stage-border: #2d2d2d;
+        --stage-surface: var(--terminal);
+        --stage-icon-bg: rgba(255, 255, 255, 0.08);
+        --stage-icon-ink: var(--green);
+        color: var(--terminal-text);
+      }
+
+      .pipeline__top {
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 0.5rem;
-        margin-bottom: 0.55rem;
+        margin-bottom: 0.6rem;
       }
 
-      .flow-step__num {
-        color: #ac9f93;
+      .pipeline__num {
+        color: var(--muted-soft);
         font-family: var(--font-mono);
-        font-size: 0.59rem;
+        font-size: 0.58rem;
         font-weight: 600;
+        letter-spacing: 0.04em;
       }
 
-      .flow-step__tag {
-        padding: 0.18rem 0.34rem;
-        border-radius: 4px;
+      .pipeline__tag {
+        padding: 0.18rem 0.38rem;
+        border-radius: 5px;
         background: var(--paper-deep);
         color: var(--muted);
         font-family: var(--font-mono);
-        font-size: 0.53rem;
-        letter-spacing: 0.05em;
+        font-size: 0.52rem;
+        letter-spacing: 0.06em;
         text-transform: uppercase;
+        white-space: nowrap;
       }
 
-      .flow-step h3 {
+      .pipeline__stage--staging .pipeline__tag {
+        background: #fde4dd;
+        color: var(--git-deep);
+      }
+
+      .pipeline__stage--repo .pipeline__tag {
+        background: rgba(255, 255, 255, 0.08);
+        color: var(--terminal-muted);
+      }
+
+      .pipeline__icon {
+        display: grid;
+        place-items: center;
+        width: 2.1rem;
+        height: 2.1rem;
+        margin-bottom: 0.62rem;
+        border-radius: 9px;
+        background: var(--stage-icon-bg);
+        color: var(--stage-icon-ink);
+      }
+
+      .pipeline__icon svg {
+        width: 1.05rem;
+        height: 1.05rem;
+      }
+
+      .pipeline__stage h3 {
         margin: 0 0 0.3rem;
-        font-size: 0.86rem;
+        font-size: 0.9rem;
         font-weight: 750;
         letter-spacing: -0.02em;
       }
 
-      .flow-step p {
+      .pipeline__stage p {
         margin: 0;
         color: var(--muted);
         font-size: 0.71rem;
         line-height: 1.55;
       }
 
-      .flow-step code {
-        align-self: flex-start;
-        margin-top: 0.7rem;
-        padding: 0.16rem 0.35rem;
+      .pipeline__stage p code {
+        padding: 0.06rem 0.24rem;
         border: 1px solid var(--line);
         border-radius: 4px;
-        background: #fff;
+        background: var(--surface);
         color: var(--git-ink);
         font-family: var(--font-mono);
-        font-size: 0.6rem;
+        font-size: 0.9em;
       }
 
-      .flow-step:nth-of-type(2) {
-        border-color: #f3d1c8;
-        background: var(--git-wash);
+      .pipeline__stage .pipeline__state {
+        display: flex;
+        align-items: center;
+        gap: 0.38rem;
+        margin: 0.75rem 0 0;
+        color: var(--muted-soft);
+        font-family: var(--font-mono);
+        font-size: 0.55rem;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
       }
 
-      .flow-step:nth-of-type(2) .flow-step__tag {
-        background: #fde4dd;
-        color: var(--git-ink);
+      .pipeline__dot {
+        width: 0.38rem;
+        height: 0.38rem;
+        flex: 0 0 auto;
+        border-radius: 50%;
+        background: var(--stage-accent);
       }
 
-      .flow-step:nth-of-type(3) {
-        border-color: #2d2d2d;
-        background: var(--terminal);
+      .pipeline__stage--repo h3 {
+        color: var(--terminal-text);
       }
 
-      .flow-step:nth-of-type(3) h3 {
-        color: #f3f0eb;
+      .pipeline__stage--repo .pipeline__num,
+      .pipeline__stage--repo p,
+      .pipeline__stage--repo .pipeline__state {
+        color: var(--terminal-muted);
       }
 
-      .flow-step:nth-of-type(3) p,
-      .flow-step:nth-of-type(3) .flow-step__num {
-        color: #a9a49c;
-      }
-
-      .flow-step:nth-of-type(3) .flow-step__tag {
-        background: #333;
-        color: #c3bdb4;
-      }
-
-      .flow-step:nth-of-type(3) code {
-        border-color: #3d3d3d;
-        background: #282828;
+      .pipeline__stage--repo p code {
+        border-color: var(--terminal-line);
+        background: var(--terminal-raised);
         color: #f3b7a7;
       }
 
-      .flow-arrow {
-        display: grid;
-        place-items: center;
-        color: #b3a79a;
+      .pipeline__connector {
+        --connector-line: var(--line-strong);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.48rem;
+        min-width: 0;
+        padding: 0.2rem 0;
+      }
+
+      .pipeline__command {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.28rem 0.48rem;
+        border: 1px solid var(--line-strong);
+        border-radius: 6px;
+        background: var(--surface);
+        color: var(--git-ink);
         font-family: var(--font-mono);
-        font-size: 0.9rem;
+        font-size: clamp(0.56rem, 0.8vw, 0.63rem);
+        line-height: 1;
+        white-space: nowrap;
+        box-shadow: var(--shadow-sm);
+        transition:
+          border-color 0.18s ease,
+          background-color 0.18s ease,
+          color 0.18s ease,
+          box-shadow 0.18s ease,
+          transform 0.18s ease;
+      }
+
+      .pipeline__command code {
+        color: inherit;
+        font-family: inherit;
+        font-size: inherit;
+      }
+
+      .pipeline__arrow {
+        position: relative;
+        display: block;
+        width: 100%;
+        height: 2px;
+        border-radius: 2px;
+        background: var(--connector-line);
+        transition:
+          background-color 0.18s ease,
+          box-shadow 0.18s ease;
+      }
+
+      .pipeline__arrow::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        right: -1px;
+        width: 0.42rem;
+        height: 0.42rem;
+        border-top: 2px solid var(--connector-line);
+        border-right: 2px solid var(--connector-line);
+        transform: translateY(-50%) rotate(45deg);
+        transition: border-color 0.18s ease;
+      }
+
+      @media (hover: hover) and (pointer: fine) {
+        .pipeline__stage:hover {
+          border-color: var(--stage-accent);
+          box-shadow: var(--shadow-md);
+          transform: translateY(-2px);
+        }
+
+        .pipeline__connector--add:hover,
+        .pipeline:has(.pipeline__stage--staging:hover)
+          .pipeline__connector--add {
+          --connector-line: var(--git);
+        }
+
+        .pipeline__connector--add:hover .pipeline__command,
+        .pipeline:has(.pipeline__stage--staging:hover) .pipeline__command--add {
+          border-color: var(--git);
+          background: var(--git-soft);
+          color: var(--git-deep);
+          box-shadow: 0 0 0 3px rgba(241, 78, 50, 0.12);
+          transform: translateY(-1px);
+        }
+
+        .pipeline__connector--add:hover .pipeline__arrow,
+        .pipeline:has(.pipeline__stage--staging:hover)
+          .pipeline__connector--add
+          .pipeline__arrow {
+          box-shadow: 0 0 10px rgba(241, 78, 50, 0.28);
+        }
+
+        .pipeline__connector--commit:hover,
+        .pipeline:has(.pipeline__stage--repo:hover)
+          .pipeline__connector--commit {
+          --connector-line: var(--git);
+        }
+
+        .pipeline__connector--commit:hover .pipeline__command,
+        .pipeline:has(.pipeline__stage--repo:hover) .pipeline__command--commit {
+          border-color: var(--git);
+          background: var(--git-soft);
+          color: var(--git-deep);
+          box-shadow: 0 0 0 3px rgba(241, 78, 50, 0.12);
+          transform: translateY(-1px);
+        }
+
+        .pipeline__connector--commit:hover .pipeline__arrow,
+        .pipeline:has(.pipeline__stage--repo:hover)
+          .pipeline__connector--commit
+          .pipeline__arrow {
+          box-shadow: 0 0 10px rgba(241, 78, 50, 0.28);
+        }
+
+        .pipeline:has(.pipeline__connector--add:hover)
+          .pipeline__stage--staging,
+        .pipeline:has(.pipeline__connector--commit:hover)
+          .pipeline__stage--repo {
+          border-color: var(--stage-accent);
+          box-shadow: var(--shadow-md);
+          transform: translateY(-2px);
+        }
       }
 
       .legend {
@@ -2703,17 +2888,16 @@
         background: #ad2c16;
       }
 
-      [data-theme="dark"] .flow-step code {
-        border-color: var(--line);
-        background: #26211c;
-        color: var(--git-ink);
+      [data-theme="dark"] .pipeline__stage--staging {
+        --stage-border: #5a2f25;
       }
 
-      [data-theme="dark"] .flow-step:nth-of-type(2) {
-        border-color: #5a2f25;
+      [data-theme="dark"] .pipeline__stage--repo {
+        --stage-border: #3b332b;
+        --stage-surface: #171514;
       }
 
-      [data-theme="dark"] .flow-step:nth-of-type(2) .flow-step__tag {
+      [data-theme="dark"] .pipeline__stage--staging .pipeline__tag {
         background: #3a2019;
         color: #ffab94;
       }
@@ -2964,14 +3148,36 @@
           margin-block: 1.8rem 1.55rem;
         }
 
-        .workflow {
-          grid-template-columns: 1fr;
-          gap: 0.45rem;
+        .pipeline {
+          grid-template-columns: minmax(0, 1fr);
+          gap: 0.3rem;
+          margin: 1.45rem 0;
         }
 
-        .flow-arrow {
-          height: 1.1rem;
-          transform: rotate(90deg);
+        .pipeline__connector {
+          gap: 0.35rem;
+          padding: 0.15rem 0;
+        }
+
+        .pipeline__arrow {
+          width: 2px;
+          height: 1.7rem;
+        }
+
+        .pipeline__arrow::after {
+          top: auto;
+          right: auto;
+          bottom: -1px;
+          left: 50%;
+          transform: translateX(-50%) rotate(135deg);
+        }
+
+        .pipeline__stage {
+          padding: 0.9rem;
+        }
+
+        .pipeline__stage .pipeline__state {
+          margin-top: 0.65rem;
         }
 
         .legend {
@@ -3281,6 +3487,14 @@
           transition-duration: 0.01ms !important;
           animation-duration: 0.01ms !important;
           animation-iteration-count: 1 !important;
+        }
+
+        .pipeline__stage:hover,
+        .pipeline:has(.pipeline__connector--add:hover)
+          .pipeline__stage--staging,
+        .pipeline:has(.pipeline__connector--commit:hover)
+          .pipeline__stage--repo {
+          transform: none;
         }
       }
 
@@ -4023,47 +4237,120 @@ Changes to be committed:</span>
             </p>
 
             <div
-              class="workflow"
+              class="pipeline"
               role="group"
               aria-label="The three areas of a Git repository"
             >
-              <div class="flow-step">
-                <div class="flow-step__top">
-                  <span class="flow-step__num">01</span>
-                  <span class="flow-step__tag">on disk</span>
+              <div class="pipeline__stage pipeline__stage--worktree">
+                <div class="pipeline__top">
+                  <span class="pipeline__num">01</span>
+                  <span class="pipeline__tag">on disk</span>
                 </div>
+                <span class="pipeline__icon" aria-hidden="true">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      d="M14 3H7a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V7Z"
+                    />
+                    <path d="M14 3v4h4" />
+                    <path d="M9 12h6M9 16h4" />
+                  </svg>
+                </span>
                 <h3>Working tree</h3>
                 <p>
                   The files you see and edit. Changes here are not in history
                   yet.
                 </p>
-                <code>edit files</code>
+                <p class="pipeline__state">
+                  <span class="pipeline__dot" aria-hidden="true"></span>Modified
+                  files
+                </p>
               </div>
-              <div class="flow-arrow" aria-hidden="true">→</div>
-              <div class="flow-step">
-                <div class="flow-step__top">
-                  <span class="flow-step__num">02</span>
-                  <span class="flow-step__tag">the index</span>
+
+              <div class="pipeline__connector pipeline__connector--add">
+                <span class="pipeline__command pipeline__command--add">
+                  <code>git add</code>
+                </span>
+                <span class="pipeline__arrow" aria-hidden="true"></span>
+                <span class="sr-only"
+                  >moves selected changes into the staging area.</span
+                >
+              </div>
+
+              <div class="pipeline__stage pipeline__stage--staging">
+                <div class="pipeline__top">
+                  <span class="pipeline__num">02</span>
+                  <span class="pipeline__tag">the index</span>
                 </div>
+                <span class="pipeline__icon" aria-hidden="true">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M12 3 3 7.5 12 12l9-4.5L12 3Z" />
+                    <path d="M3 12l9 4.5 9-4.5" />
+                    <path d="M3 16.5l9 4.5 9-4.5" />
+                  </svg>
+                </span>
                 <h3>Staging area</h3>
                 <p>
                   A preview of the next commit. Add only the changes you want in
                   it.
                 </p>
-                <code>git add</code>
+                <p class="pipeline__state">
+                  <span class="pipeline__dot" aria-hidden="true"></span>Ready to
+                  commit
+                </p>
               </div>
-              <div class="flow-arrow" aria-hidden="true">→</div>
-              <div class="flow-step">
-                <div class="flow-step__top">
-                  <span class="flow-step__num">03</span>
-                  <span class="flow-step__tag">history</span>
+
+              <div class="pipeline__connector pipeline__connector--commit">
+                <span class="pipeline__command pipeline__command--commit">
+                  <code>git commit</code>
+                </span>
+                <span class="pipeline__arrow" aria-hidden="true"></span>
+                <span class="sr-only"
+                  >records the staged snapshot in the repository.</span
+                >
+              </div>
+
+              <div class="pipeline__stage pipeline__stage--repo">
+                <div class="pipeline__top">
+                  <span class="pipeline__num">03</span>
+                  <span class="pipeline__tag">history</span>
                 </div>
+                <span class="pipeline__icon" aria-hidden="true">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <ellipse cx="12" cy="5" rx="8" ry="3" />
+                    <path d="M4 5v6c0 1.66 3.58 3 8 3s8-1.34 8-3V5" />
+                    <path d="M4 11v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6" />
+                  </svg>
+                </span>
                 <h3>Repository</h3>
                 <p>
                   The snapshots stored in <code>.git</code>. A commit records
                   the staged state.
                 </p>
-                <code>git commit</code>
+                <p class="pipeline__state">
+                  <span class="pipeline__dot" aria-hidden="true"></span>Committed
+                  history
+                </p>
               </div>
             </div>
 
